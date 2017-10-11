@@ -1,0 +1,5 @@
+D:\University\5 KURS\Computing technology\Laba1\CommonModel\bin\Debug\CommonModel.dll
+D:\University\5 KURS\Computing technology\Laba1\CommonModel\bin\Debug\CommonModel.pdb
+D:\University\5 KURS\Computing technology\Laba1\CommonModel\obj\Debug\CommonModel.dll
+D:\University\5 KURS\Computing technology\Laba1\CommonModel\obj\Debug\CommonModel.pdb
+D:\University\5 KURS\Computing technology\Laba1\CommonModel\obj\Debug\CommonModel.csprojResolveAssemblyReference.cache
