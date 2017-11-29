@@ -12,3 +12,11 @@ D:\University\5 KURS\Computing technology\Laba1\Laba1\bin\Debug\CommonModel.pdb
 E:\University\5 KURS\Computing technology\Laba1\Laba1\bin\Debug\Laba1.exe.config
 E:\University\5 KURS\Computing technology\Laba1\Laba1\obj\Debug\Laba1.exe
 E:\University\5 KURS\Computing technology\Laba1\Laba1\obj\Debug\Laba1.pdb
+E:\University\5 KURS\Computing technology\Laba1\Laba1\bin\Debug\Laba1.exe
+E:\University\5 KURS\Computing technology\Laba1\Laba1\bin\Debug\Laba1.pdb
+E:\University\5 KURS\Computing technology\Laba1\Laba1\bin\Debug\CommonModel.dll
+E:\University\5 KURS\Computing technology\Laba1\Laba1\bin\Debug\CommonModel.pdb
+E:\University\5 KURS\Computing technology\Laba1\Laba1\obj\Debug\Laba1.csprojResolveAssemblyReference.cache
+E:\University\5 KURS\Computing technology\Laba1\Laba1\obj\Debug\Laba1.View.MainForm.resources
+E:\University\5 KURS\Computing technology\Laba1\Laba1\obj\Debug\Laba1.Properties.Resources.resources
+E:\University\5 KURS\Computing technology\Laba1\Laba1\obj\Debug\Laba1.csproj.GenerateResource.Cache
