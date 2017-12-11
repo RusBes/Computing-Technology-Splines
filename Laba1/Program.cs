@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
 using Laba1.View;
-using CommonModel;
 
 namespace Laba1
 {
@@ -15,14 +14,15 @@ namespace Laba1
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
-                var mainForm = new MainForm();
-                var presenter = new Presenter.Presenter(mainForm, new Model());
-            try
-            {
-                Application.Run(mainForm);
+
+			var mainForm = new MainForm();
+			new Presenter.Presenter(mainForm);
+
+			try
+			{
+				Application.Run(mainForm);
             }
-            catch (NotImplementedException ex)
+            catch (NotImplementedException)
             {
                 mainForm.ShowErrorMessage("Неможливо виконати дію. Дана можливість ще не реалізована.");
                 //mainForm.ShowErrorMessage((ex.Message != null && ex.Message.Length > 0) ? ex.Message : "Неможливо виконати дію. Дана можливість ще не реалізована.");

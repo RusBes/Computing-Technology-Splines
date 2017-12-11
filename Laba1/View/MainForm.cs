@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,35 +10,19 @@ namespace Laba1.View
 {
     public partial class MainForm : Form
     {
-        private const string _specifiedPointIdentificator = "SpecifiedPoint";
+        private const string SpecifiedPointIdentificator = "SpecifiedPoint";
         private readonly List<string> _unnecessarySettings = new List<string> { "IntervalLength", "ShownPoint" };
 
 
         public MainForm()
         {
             InitializeComponent();
-
-            //var charts = _getAllControlsByType(Controls, new Chart());
-            //foreach (var chart in charts)
-            //{
-            //    foreach (var chartArea in chart.ChartAreas)
-            //    {
-            //        chartArea.CursorX.IsUserEnabled = true;
-            //        chartArea.CursorX.IsUserSelectionEnabled = true;
-            //        chartArea.CursorX.Interval = 0.1;
-
-            //        chartArea.CursorY.IsUserEnabled = true;
-            //        chartArea.CursorY.IsUserSelectionEnabled = true;
-            //        chartArea.CursorY.Interval = 0.1;
-            //    }
-            //}
         }
 
         public ScopeStates ScopeState;
         public Dictionary<string, Setting> Settings { private get; set; }
 
         public event EventHandler<SettingChangedEventArgs> SettingChanged;
-        public event EventHandler<EntityEventArgs> RefreshGraphicNeeded;
         public event EventHandler<GraphicsEventArgs> BuildGraphicsNeeded;
         public event EventHandler<GraphicsEventArgs> ReBuildGraphicsNeeded;
         public event EventHandler<UnEvenTypesEventArgs> StartUnevenSplines;
@@ -69,14 +52,6 @@ namespace Laba1.View
         public void Init()
         {
             Width = 1000;
-
-            butSplainS2_0.Click += (sender, e) => RefreshGraphicNeeded?.Invoke(sender, new EntityEventArgs("s20"));
-            butSplainS2_1.Click += (sender, e) => RefreshGraphicNeeded?.Invoke(sender, new EntityEventArgs("s21"));
-            butSplainS2_2.Click += (sender, e) => RefreshGraphicNeeded?.Invoke(sender, new EntityEventArgs("s22"));
-
-            butSplainS3_0.Click += (sender, e) => RefreshGraphicNeeded?.Invoke(sender, new EntityEventArgs("s30"));
-            butSplainS3_1.Click += (sender, e) => RefreshGraphicNeeded?.Invoke(sender, new EntityEventArgs("s31"));
-            butSplainS3_2.Click += (sender, e) => RefreshGraphicNeeded?.Invoke(sender, new EntityEventArgs("s32"));
 
             _renderSettings();
             _renderSplineCheckBoxes();
@@ -162,12 +137,12 @@ namespace Laba1.View
         private int _specifiedPointsCounter;
         public void ShowSpecifiedPoint(double x, double y)
         {
-            var xMin = chartMain.ChartAreas[0].AxisX.Minimum;
-            var yMin = chartMain.ChartAreas[0].AxisY.Minimum;
+            //var xMin = chartMain.ChartAreas[0].AxisX.Minimum;
+            //var yMin = chartMain.ChartAreas[0].AxisY.Minimum;
             //chartMain.Series[2].Points.AddXY(xMin, y);
             //chartMain.Series[2].Points.AddXY(x, yMin);
 
-            var series = new Series(_specifiedPointIdentificator + _specifiedPointsCounter)
+            var series = new Series(SpecifiedPointIdentificator + _specifiedPointsCounter)
             {
                 ChartType = SeriesChartType.Point
             };
@@ -181,7 +156,7 @@ namespace Laba1.View
         {
             for (int i = 0; i < chartMain.Series.Count; i++)
             {
-                if (chartMain.Series[i].Name.Contains(_specifiedPointIdentificator))
+                if (chartMain.Series[i].Name.Contains(SpecifiedPointIdentificator))
                 {
                     chartMain.Series.RemoveAt(i);
 
@@ -224,7 +199,7 @@ namespace Laba1.View
             //        graphics.Add((chb as CheckBox).Name.Replace("chb", "S"));
             //    }
             //}
-            var graphics = FindAllControls<CheckBox>(gbSplineTypes).Select(chb => chb.Name.Replace("chb", "S"));
+            var graphics = FindAllControls<CheckBox>(gbSplineTypes).Where(chb => chb.Checked).Select(chb => chb.Name.Replace("chb", "S"));
             return graphics.ToArray();
         }
 
@@ -242,7 +217,7 @@ namespace Laba1.View
             chart.Series.Clear();
         }
 
-        public void AddGraphic(IEnumerable<PointD> points, IEnumerable<PointD> nodalPoints = null, string name = "", Chart chart = null)
+        public void AddGraphic(List<PointD> points, List<PointD> nodalPoints = null, string name = "", Chart chart = null)
         {
             if (chart == null)
             {
@@ -277,15 +252,18 @@ namespace Laba1.View
                 chart.Series.Add(sNodal);
             }
 
-            var minX = Math.Min(points.Count() > 0 ? points.Min(p => p.X) : 0, nodalPoints.Count() > 0 ? nodalPoints.Min(p => p.X) : 0);
-            var maxX = Math.Max(points.Count() > 0 ? points.Max(p => p.X) : 0, nodalPoints.Count() > 0 ? nodalPoints.Max(p => p.X) : 0);
-            var minY = Math.Min(points.Count() > 0 ? points.Min(p => p.Y) : 0, nodalPoints.Count() > 0 ? nodalPoints.Min(p => p.Y) : 0);
-            var maxY = Math.Max(points.Count() > 0 ? points.Max(p => p.Y) : 0, nodalPoints.Count() > 0 ? nodalPoints.Max(p => p.Y) : 0);
+	        if (points != null && nodalPoints != null)
+	        {
+		        var minX = Math.Min(points.Any() ? points.Min(p => p.X) : 0, nodalPoints.Any() ? nodalPoints.Min(p => p.X) : 0);
+		        var maxX = Math.Max(points.Any() ? points.Max(p => p.X) : 0, nodalPoints.Any() ? nodalPoints.Max(p => p.X) : 0);
+		        var minY = Math.Min(points.Any() ? points.Min(p => p.Y) : 0, nodalPoints.Any() ? nodalPoints.Min(p => p.Y) : 0);
+		        var maxY = Math.Max(points.Any() ? points.Max(p => p.Y) : 0, nodalPoints.Any() ? nodalPoints.Max(p => p.Y) : 0);
 
-            chart.ChartAreas[0].AxisX.Minimum = minX > 0 ? minX / 1.2 : minX * 1.2;
-            chart.ChartAreas[0].AxisX.Maximum = maxX > 0 ? maxX * 1.2 : maxX / 1.2;
-            chart.ChartAreas[0].AxisY.Minimum = minY > 0 ? minY / 1.2 : minY * 1.2;
-            chart.ChartAreas[0].AxisY.Maximum = maxY > 0 ? maxY * 1.2 : maxY / 1.2;
+		        chart.ChartAreas[0].AxisX.Minimum = minX > 0 ? minX / 1.2 : minX * 1.2;
+		        chart.ChartAreas[0].AxisX.Maximum = maxX > 0 ? maxX * 1.2 : maxX / 1.2;
+		        chart.ChartAreas[0].AxisY.Minimum = minY > 0 ? minY / 1.2 : minY * 1.2;
+		        chart.ChartAreas[0].AxisY.Maximum = maxY > 0 ? maxY * 1.2 : maxY / 1.2;
+	        }
         }
 
         private void butStartUneven_Click(object sender, EventArgs e)
@@ -334,7 +312,6 @@ namespace Laba1.View
             pbAfter.Image = img;
             pbAfter.Width = img.Width;
             pbAfter.Height = img.Height;
-            pbAfter.Height = pbBefor.Height;
         }
 
         private void butApplyFilter_Click(object sender, EventArgs e)
@@ -364,7 +341,7 @@ namespace Laba1.View
                 {
                     res.Add(control as T);
                 }
-                FindAllControls<T>(control as Control);
+                FindAllControls<T>(control);
             }
             return res;
         }

@@ -53,7 +53,7 @@ namespace CommonModel
             X = GetNewX(pointsInInterval);
 
             ScopeRadius = 20;
-        }
+		}
 
         public Spline CreateSpline(string name)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
@@ -8,16 +9,49 @@ using Laba1.View;
 
 namespace Laba1.Presenter
 {
-    class Presenter
+	class Matrix : IEnumerable<IEnumerable<double>>
+	{
+		public double[,] Arr;
+
+		public void Add(params double[] a)
+		{
+			
+		}
+
+		public double this[int i, int j]
+		{
+			get { return 1; }
+		}
+
+		public IEnumerator<IEnumerable<double>> GetEnumerator()
+		{
+			throw new NotImplementedException();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+	}
+
+	class Worker
+	{
+		public void Do()
+		{
+			var a = new Matrix() { {1, 2, 3}, {1, 2, 3} };
+		}
+	}
+
+	class Presenter
     {
         private readonly MainForm _view;
 
         private readonly Model _model;
 
-        public Presenter(MainForm view, Model model)
+        public Presenter(MainForm view)
         {
             _view = view;
-            _model = model;
+            _model = new Model();
 
             _view.Settings = _model.Settings;
             _view.Init();
@@ -43,21 +77,31 @@ namespace Laba1.Presenter
             {
                 _view.ScopeState = ScopeStates.Applied;
 
+                var startTime = DateTime.Now;
+
                 var points = new List<Point>();
                 var radius = _model.ScopeRadius;
-                //var botLeft = new Point(Center.X - radius, Center.Y - radius);
-                var topLeft = (new Point(Center.X - radius, Center.Y + radius));
-                //var topRight = (new Point(Center.X + radius, Center.Y + radius));
-                var botRight = (new Point(Center.X + radius, Center.Y - radius));
+                var topLeft = (new Point(_center.X - radius, _center.Y + radius));
+                var botRight = (new Point(_center.X + radius, _center.Y - radius));
                 for (int i = topLeft.X; i < botRight.X; i++)
                 {
                     for (int j = topLeft.Y; j > botRight.Y; j--)
                     {
-                        points.Add(new Point(i, j));
+                        points.Add(new Point(j, i));
                     }
                 }
+
+                var endCalcPoints = (DateTime.Now - startTime).TotalMilliseconds;
+                var startFilteringTime = DateTime.Now;
+
                 var newImage = _model.ApplyFilter(_model.Image, e.Filter, points);
+
+                var endFiltering = (DateTime.Now - startFilteringTime).TotalMilliseconds;
+
                 _view.ShowImageBefore(newImage);
+
+
+                var endTime = (DateTime.Now - startTime).TotalMilliseconds;
             }
         }
 
@@ -75,18 +119,18 @@ namespace Laba1.Presenter
             if(_view.ScopeState == ScopeStates.On)
             {
                 e.PictureBox.Paint += _pictureBox_PaintHandler;
-                drawCounter++;
+                _drawCounter++;
                 //DrawContur(Cursor.Position, Color.Red, e.PictureBox.CreateGraphics(), e.PictureBox);
             }
         }
 
-        int drawCounter = 0;
+        int _drawCounter = 0;
         private void _pictureBoxMouseLeaveHandler(object sender, PicureBoxEventArgs e)
         {
             if (_view.ScopeState == ScopeStates.On)
             {
                 e.PictureBox.Paint -= _pictureBox_PaintHandler;
-                drawCounter--;
+                _drawCounter--;
                 //DrawContur(Cursor.Position, Color.Red, e.PictureBox.CreateGraphics(), e.PictureBox);
             }
             //_view.ScopeState = ScopeStates.Off;
@@ -94,7 +138,7 @@ namespace Laba1.Presenter
 
         private void _pictureBoxMouseMoveHandler(object sender, PicureBoxMouseEventArgs e)
         {
-            Center = e.Location;
+            _center = e.Location;
             e.PictureBox.Invalidate();
             //if (_view.ScopeState == ScopeStates.On)
             //{
@@ -102,11 +146,11 @@ namespace Laba1.Presenter
             //}
         }
 
-        Point Center;
+	    private Point _center;
 
         private void _pictureBox_PaintHandler(object sender, PaintEventArgs e)
         {
-            DrawContur(Center, Color.Red, e.Graphics);
+            DrawContur(_center, Color.Red, e.Graphics);
         }
 
         private void DrawContur(Point center, Color color, Graphics g)
@@ -127,6 +171,7 @@ namespace Laba1.Presenter
             if (_view.ScopeState == ScopeStates.Off)
             {
                 _view.ScopeState = ScopeStates.On;
+                _model.ScopeRadius = Convert.ToInt16(_view.nudScopeRadius.Value);
             }
             else
             {
@@ -167,33 +212,33 @@ namespace Laba1.Presenter
         private void _startUnevenSplinesHandler(object sender, UnEvenTypesEventArgs e)
         {
             int len;
-            double[] X;
-            double[] Y;
+            double[] x;
+            double[] y;
             List<PointD> tmpPoints;
             switch (e.Type)
             {
                 case UnevenTypes.Star:
                     tmpPoints = _model.GetStarPoints(_model.GetAdditionalPointsCount(e.Graphic));
-                    X = tmpPoints.Select(p => p.X).ToArray();
-                    Y = tmpPoints.Select(p => p.Y).ToArray();
-                    len = X.Length;
+                    x = tmpPoints.Select(p => p.X).ToArray();
+                    y = tmpPoints.Select(p => p.Y).ToArray();
+                    len = x.Length;
                     break;
                 case UnevenTypes.Rectangle:
                     tmpPoints = _model.GetRectantlePoints(_model.GetAdditionalPointsCount(e.Graphic));
-                    X = tmpPoints.Select(p => p.X).ToArray();
-                    Y = tmpPoints.Select(p => p.Y).ToArray();
-                    len = X.Length;
+                    x = tmpPoints.Select(p => p.X).ToArray();
+                    y = tmpPoints.Select(p => p.Y).ToArray();
+                    len = x.Length;
                     break;
                 case UnevenTypes.Petla:
                     tmpPoints = _model.GetPetlyaPoints(_model.GetAdditionalPointsCount(e.Graphic));
-                    X = tmpPoints.Select(p => p.X).ToArray();
-                    Y = tmpPoints.Select(p => p.Y).ToArray();
-                    len = X.Length;
+                    x = tmpPoints.Select(p => p.X).ToArray();
+                    y = tmpPoints.Select(p => p.Y).ToArray();
+                    len = x.Length;
                     break;
                 default:
                     len = (int)_model.Settings["PointCount"].Value;
-                    X = _model.GetUnevenT(len);
-                    Y = _model.GetP(len);
+                    x = _model.GetUnevenT(len);
+                    y = _model.GetP(len);
                     break;
             }
             //var X = _model.GetUnevenT(len);
@@ -202,21 +247,21 @@ namespace Laba1.Presenter
             var regularX = new double[len];
             for (int i = 0; i < len; i++)
             {
-                points.Add(new PointD(X[i], Y[i]));
+                points.Add(new PointD(x[i], y[i]));
                 regularX[i] = i;
             }
 
 
-            var pointsRegularX = _model.CreateSpline(e.Graphic, X).CalculatePoints();
-            var pointsRegularY = _model.CreateSpline(e.Graphic, Y).CalculatePoints();
+            var pointsRegularX = _model.CreateSpline(e.Graphic, x).CalculatePoints();
+            var pointsRegularY = _model.CreateSpline(e.Graphic, y).CalculatePoints();
 
             var pointsX = new List<PointD>();
             var pointsY = new List<PointD>();
             var pointsRes = new List<PointD>();
             for (int i = 0; i < len; i++)
             {
-                pointsX.Add(new PointD(regularX[i], X[i]));
-                pointsY.Add(new PointD(regularX[i], Y[i]));
+                pointsX.Add(new PointD(regularX[i], x[i]));
+                pointsY.Add(new PointD(regularX[i], y[i]));
             }
 
             for (int i = 0; i < pointsRegularX.Count; i++)
@@ -257,7 +302,7 @@ namespace Laba1.Presenter
         {
             var spline = _model.CreateSpline(graphicName);
 
-            List<PointD> points = null;
+            List<PointD> points;
             try
             {
                 points = spline.CalculatePoints();
@@ -315,14 +360,9 @@ namespace Laba1.Presenter
                     case "PointCount":
                         int pCount = int.Parse(e.NewValue);
                         _model.Settings[e.Name].Value = pCount;
-                        if (pCount <= _model.P.Length)
-                        {
-                            _model.P = _model.P.Take(pCount).ToArray();
-                        }
-                        else
-                        {
-                            _model.P = _model.P.Concat(_model.GetP(pCount - _model.P.Length)).ToArray();
-                        }
+                        _model.P = pCount <= _model.P.Length ? 
+							_model.P.Take(pCount).ToArray() : 
+							_model.P.Concat(_model.GetP(pCount - _model.P.Length)).ToArray();
                         break;
                     default:
                         _view.ShowErrorMessage("Виникла проблема зі зміною налаштувань, зміни було відхилено");
@@ -332,102 +372,6 @@ namespace Laba1.Presenter
             catch (Exception)
             {
                 _view.ShowErrorMessage("Виникла проблема зі зміною налаштувань, зміни було відхилено");
-            }
-        }
-
-        [Obsolete]
-        private void RefreshGraphicHandler(object sender, EntityEventArgs e)
-        {
-            List<double[]> points;
-
-            //_model.P = _model.GetNewP((int)_model.Settings["PointCount"].Value);
-            Model.CalcValueInPoint2 funCalcValueInPoint;
-
-            switch (e.Name.ToLower())
-            {
-                case "s20":
-                    funCalcValueInPoint = _model.CalculateValueInPoint;
-                    points = _model.CalcPointsS20(_model.CalculateValueInPointS20);
-                    break;
-                case "s21":
-                    funCalcValueInPoint = _model.CalculateValueInPointS21;
-                    points = _model.CalcPointsS21(_model.CalculateValueInPointS21);
-                    break;
-                case "s22":
-                    funCalcValueInPoint = _model.CalculateValueInPointS22;
-                    points = _model.CalcPointsS22(_model.CalculateValueInPointS22);
-                    break;
-                case "s30":
-                    funCalcValueInPoint = _model.CalculateValueInPointS30;
-                    points = _model.CalcPointsS30(_model.CalculateValueInPointS30);
-                    break;
-                case "s31":
-                    funCalcValueInPoint = _model.CalculateValueInPointS31;
-                    points = _model.CalcPointsS31(_model.CalculateValueInPointS31);
-                    break;
-                case "s32":
-                    funCalcValueInPoint = _model.CalculateValueInPointS32;
-                    points = _model.CalcPointsS32(_model.CalculateValueInPointS32);
-                    break;
-                case "s40":
-                    funCalcValueInPoint = _model.CalculateValueInPointS40;
-                    points = _model.CalcPointsS40(_model.CalculateValueInPointS40);
-                    break;
-                case "s41":
-                    funCalcValueInPoint = _model.CalculateValueInPointS41;
-                    points = _model.CalcPointsS41(_model.CalculateValueInPointS41);
-                    break;
-                case "s42":
-                    funCalcValueInPoint = _model.CalculateValueInPointS42;
-                    points = _model.CalcPointsS42(_model.CalculateValueInPointS42);
-                    break;
-                case "s50":
-                    funCalcValueInPoint = _model.CalculateValueInPointS50;
-                    points = _model.CalcPointsS50(_model.CalculateValueInPointS50);
-                    break;
-                default:
-                    funCalcValueInPoint = _model.CalculateValueInPoint;
-                    points = _model.CalculatePoints(_model.CalculateValueInPoint);
-                    break;
-            }
-
-
-
-            if (points == null || !(points.Count > 1))
-            {
-                _view.ShowErrorMessage("Не вдалося відтворити графік. Недостатньо точок для відтворення графіку");
-                return;
-            }
-
-            List<double[]> nodalPoints = new List<double[]>();
-            for (int i = 0; i < _model.P.Length; i++)
-            {
-                nodalPoints.Add(new double[] { i, _model.P[i] });
-            }
-            _view.DrawGraphic(points, nodalPoints);
-
-            var tmpShownPointX = _model.Settings["ShownPoint"].Value;
-            if (tmpShownPointX != null)
-            {
-                try
-                {
-                    double x = Convert.ToDouble(tmpShownPointX);
-                    double y = funCalcValueInPoint(x);
-                    _view.ClearAllSpecifiedPoint();
-                    _view.ShowSpecifiedPoint(x, y);
-                }
-                catch (InvalidCastException)
-                {
-                    _view.ShowErrorMessage("Неправильно введені дані");
-                }
-                catch (Exception ex)
-                {
-                    _view.ShowErrorMessage(ex.Message);
-                }
-            }
-            else
-            {
-                _view.ClearAllSpecifiedPoint();
             }
         }
     }

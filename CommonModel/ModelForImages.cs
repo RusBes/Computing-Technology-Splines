@@ -1,187 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using CommonModel.Classes;
 
 namespace CommonModel
 {
     public partial class Model
     {
-        #region Filter masks
-
-        // Low
-        private readonly Mask JL20 = new Mask(
-            new double[][] 
-            {
-                new double[] { 1, 6, 1 },
-                new double[] { 6, 36, 6 },
-                new double[] { 1, 6, 1 }
-            }, 64);
-
-        private readonly Mask JL30 = new Mask(
-            new double[][]
-            {
-                new double[] { 1, 4, 1 },
-                new double[] { 4, 16, 4 },
-                new double[] { 1, 4, 1 }
-            }, 36);
-
-        private readonly Mask JL40 = new Mask(
-            new double[][]
-            {
-                new double[] { 1, 76, 230, 76, 1},
-                new double[] { 76, 5776, 17480, 5776, 76},
-                new double[] { 230, 17480, 52900, 17480, 230},
-                new double[] { 1, 76, 230, 76, 1},
-                new double[] { 76, 5776, 17480, 5776, 76}
-            }, 147456);
-
-        private readonly Mask JL50 = new Mask(
-            new double[][]
-            {
-                new double[] { 1, 26, 66, 276, 1},
-                new double[] { 26, 676, 1716, 676, 26},
-                new double[] { 66, 1716, 4386, 1716, 66},
-                new double[] { 1, 26, 66,276, 1},
-                new double[] { 26, 676, 1716, 676, 26}
-            }, 14400);
-
-        // Hight
-        private readonly Mask JH20 = new Mask(
-            new double[][]
-            {
-                new double[] { -1, -6, -1},
-                new double[] { -6, 28, -6},
-                new double[] { -1, -6, -1}
-            }, 64);
-
-        private readonly Mask JH30 = new Mask(
-            new double[][]
-            {
-                new double[] { -1, -4, -1},
-                new double[] { -4, 20, -4},
-                new double[] { -1, -4, -1}
-            }, 36);
-
-        private readonly Mask JH40 = new Mask(
-            new double[][]
-            {
-                new double[] { -1, -76, -230, -76, -1},
-                new double[] { -76, -5776, -17480, -5776, -76},
-                new double[] { -230, -17480, 94556, -17480, -230},
-                new double[] { -1, -76, -230, -76, -1},
-                new double[] { -76, -5776, -17480, -5776, -76}
-            }, 147456);
-
-        private readonly Mask JH50 = new Mask(
-            new double[][]
-            {
-                new double[] { -1, -26, -66,-276, -1},
-                new double[] { -26, -676, -1716, -676, -26},
-                new double[] { -66, -1716, 10044, -1716, -66},
-                new double[] { -1, -26, -66,-276, -1},
-                new double[] { -26, -676, -1716, -676, -26}
-            }, 14400);
-
-        // Kontrast
-        private readonly Mask JK20 = new Mask(
-            new double[][]
-            {
-                new double[] { 1, -8, 48, -8, 1},
-                new double[] { -8, 64, -384, 64, -8},
-                new double[] { 48, -384, 2304, -384, 48},
-                new double[] { -8, 64, -384, 64, -8},
-                new double[] { 1, -8, 48, -8, 1}
-            }, 1156);
-
-        private readonly Mask JK30 = new Mask(
-            new double[][]
-            {
-                new double[] { 1, -6, 24, -6, 1},
-                new double[] { -6, 36, -144, 36, -6},
-                new double[] { 24, -144, 576, -144, 24},
-                new double[] { -6, 36, -144, 36, -6},
-                new double[] { 1, -6, 24, -6, 1}
-            }, 196);
-
-        private readonly Mask JK40 = new Mask(
-            new double[][]
-            {
-                new double[] { 1, -8, 48, -8, 1},
-                new double[] { -8, 64, -384, 64, -8},
-                new double[] { 48, -384, 2304, -384, 48},
-                new double[] { -8, 64, -384, 64, -8},
-                new double[] { 1, -8, 48, -8, 1}
-            }, 1);
-
-        private readonly Mask JK50 = new Mask(
-            new double[][]
-            {
-                new double[] { 1, 6, 1 },
-                new double[] { 6, 36, 6 },
-                new double[] { 1, 6, 1 }
-            }, 25784009476);
-
-        // stabilisators
-        private readonly Mask JS20 = new Mask(
-            new double[][]
-            {
-                new double[] {3.75457E-09,8.93587E-07,5.40282E-06,-7.38748E-05, 5.40282E-06, 8.93587E-07, 3.75457E-09 },
-                new double[] {8.93587E-07,0.000212674,0.001285871,-0.011758221,0.001285871,0.000212674,8.93587E-07 },
-                new double[] {5.40282E-06,0.001285871, 0.007774658,-0.106305883,0.007774658,0.001285871,5.40282E-06},
-                new double[] {-7.38748E-05,-0.01758221,-0.106305883,1.45356119,-0.106305883,-0.01758221,-7.38748E-05 },
-                new double[] {5.40282E-06,0.001285871, 0.007774658,-0.106305883,0.007774658,0.001285871,5.40282E-06 },
-                new double[] {8.93587E-07,0.000212674,0.001285871,-0.011758221,0.001285871,0.000212674,8.93587E-07  },
-                new double[] {3.75457E-09,8.93587E-07,5.40282E-06,-7.38748E-05, 5.40282E-06, 8.93587E-07, 3.75457E-09 }
-            }, 1);
-
-        private readonly Mask JS30 = new Mask(
-            new double[][]
-            {
-                new double[] {1.24562E-08,2.96456E-06,1.159314E-05,-0.000149424,1.159314E-05,2.96456E-06,1.24562E-08 },
-                new double[] {2.96456E-06,0.000705566,0.003791678,-0.035562919,0.003791678,0.000705566,2.96456E-06 },
-                new double[] {1.59314E-05,0.003791678,0.020376288,-0.191113331, 0.020376288,0.003791678,1.59314E-05},
-                new double[] {-0.000149424,-0.035562919,-0.191113391,1.792490633,-0.191113391,-0.035562919, -0.000149424},
-                new double[] {1.59314E-05,0.003791678,0.020376288,-0.191113331, 0.020376288,0.003791678,1.59314E-05 },
-                new double[] {2.96456E-06,0.000705566,0.003791678,-0.035562919,0.003791678,0.000705566,2.96456E-06  },
-                new double[] { 1.24562E-08,2.96456E-06,1.159314E-05,-0.000149424,1.159314E-05,2.96456E-06,1.24562E-08}
-            }, 1);
-
-        private readonly Mask JS40 = new Mask(
-            new double[][]
-            {
-                new double[] {1.6236E-10,4.1165E-08,9.20847E-07,2.14132E-06,-1.8949E-05,2.14132E-06,9.20847E-07,4.1165E-08 ,1.6236E-10},
-                new double[] {4.1165E-08,1.0437E-05,0.000233473,0.000542915,-0.004804375,0.000542915,0.000233473,1.0437E-05,4.1165E-08 },
-                new double[] {9.20847E-07,0.000233473,0.000522272,0.012144825,-0.107472272,0.012144825,0.000522272,0.000233473,9.20847E-07 },
-                new double[] {2.14132E-06,0.000542915,0.012144825,0.028241375,-0.249914233,0.028241375,0.012144825,0.000542915,2.14132E-06 },
-                new double[] {-1.8949E-05,-0.004804375,-0.107472272,-0.249914233,2.211546853,-0.249914233,-0.107472272,-0.004804375,-1.8949E-05 },
-                new double[] {2.14132E-06,0.000542915,0.012144825,0.028241375,-0.249914233,0.028241375,0.012144825,0.000542915,2.14132E-06  },
-                new double[] {9.20847E-07,0.000233473,0.000522272,0.012144825,-0.107472272,0.012144825,0.000522272,0.000233473,9.20847E-07 },
-                new double[] {4.1165E-08,1.0437E-05,0.000233473,0.000542915,-0.004804375,0.000542915,0.000233473,1.0437E-05,4.1165E-08 },
-                new double[] {1.6236E-10,4.1165E-08,9.20847E-07,2.14132E-06,-1.8949E-05,2.14132E-06,9.20847E-07,4.1165E-08 ,1.6236E-10 }
-            }, 1);
-
-        private readonly Mask JS50 = new Mask(
-            new double[][]
-            {
-                new double[] {5.26177E-10,1.32248E-07,3.7676E-06,4.92362E-06,-3.85865E-05,4.92362E-06,3.7676E-06,1.32248E-07,5.26177E-10},
-                new double[] {1.32248E-07,3.32391E-05,0.000695605,0.001237494,-0.009698272,0.001237494,0.000695605,3.32391E-05, 1.32248E-07},
-                new double[] {3.7676E-06,0.000695605,0.0145571357,0.025897446,-0.202958992,0.025897446,0.0145571357,0.000695605,3.7676E-06},
-                new double[] {4.92362E-06,0.001237494,0.025897446,0.046072025,-0.361067725,0.046072025, 0.025897446,0.001237494,4.92362E-06 },
-                new double[] {-3.85865E-05,-0.009698272,-0.202958992,-0.361067725,2.829697678,-0.361067725,-0.202958992,-0.009698272,-3.85865E-05 },
-                new double[] {4.92362E-06,0.001237494,0.025897446,0.046072025,-0.361067725,0.046072025, 0.025897446,0.001237494,4.92362E-06  },
-                new double[] {3.7676E-06,0.000695605,0.0145571357,0.025897446,-0.202958992,0.025897446,0.0145571357,0.000695605,3.7676E-06},
-                new double[] {1.32248E-07,3.32391E-05,0.000695605,0.001237494,-0.009698272,0.001237494,0.000695605,3.32391E-05, 1.32248E-07 },
-                new double[] {5.26177E-10,1.32248E-07,3.7676E-06,4.92362E-06,-3.85865E-05,4.92362E-06,3.7676E-06,1.32248E-07,5.26177E-10 }
-            }, 1);
-
-        #endregion
-
         public Bitmap Image { get; set; }
 
         public int ScopeRadius { get; set; }
@@ -195,7 +24,7 @@ namespace CommonModel
             }
         }
 
-        public unsafe byte[,,] BitmapToByteRgbQ(Bitmap bmp)
+		public unsafe byte[,,] BitmapToByteRgbQ(Bitmap bmp)
         {
             int width = bmp.Width,
                 height = bmp.Height;
@@ -230,7 +59,6 @@ namespace CommonModel
             return res;
         }
 
-
         //private Func<Bitmap, Bitmap> _filterFunc;
         public Bitmap ApplyFilter(Bitmap image, string filterName)
         {
@@ -238,78 +66,80 @@ namespace CommonModel
             switch (filterName)
             {
                 case "JL20":
-                    return MultiplyImageToMask(matrix, JL20).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jL20).ToBitmap();
                 case "JL30":
-                    return MultiplyImageToMask(matrix, JL30).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jL30).ToBitmap();
                 case "JL40":
-                    return MultiplyImageToMask(matrix, JL40).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jL40).ToBitmap();
                 case "JL50":
-                    return MultiplyImageToMask(matrix, JL50).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jL50).ToBitmap();
                 case "JH20":
-                    return MultiplyImageToMask(matrix, JH20).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jH20).ToBitmap();
                 case "JH30":
-                    return MultiplyImageToMask(matrix, JH30).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jH30).ToBitmap();
                 case "JH40":
-                    return MultiplyImageToMask(matrix, JH40).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jH40).ToBitmap();
                 case "JH50":
-                    return MultiplyImageToMask(matrix, JH50).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jH50).ToBitmap();
                 case "JK20":
-                    return MultiplyImageToMask(matrix, JK20).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jK20).ToBitmap();
                 case "JK30":
-                    return MultiplyImageToMask(matrix, JK30).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jK30).ToBitmap();
                 //case "JK40":
-                //    return MultiplyImageToMask(matrix, JK40).ToBitmap();
+                //    return MultiplyImageToMask(matrix, _jK40).ToBitmap();
                 //case "JK50":
-                //    return MultiplyImageToMask(matrix, JK50).ToBitmap();
+                //    return MultiplyImageToMask(matrix, _jK50).ToBitmap();
                 case "JS20":
-                    return MultiplyImageToMask(matrix, JS20).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jS20).ToBitmap();
                 case "JS30":
-                    return MultiplyImageToMask(matrix, JS30).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jS30).ToBitmap();
                 case "JS40":
-                    return MultiplyImageToMask(matrix, JS40).ToBitmap();
+                    return MultiplyImageToMask(matrix, _jS40).ToBitmap();
                 case "JS50":
-                    return MultiplyImageToMask(matrix, JS50).ToBitmap();
-                default:
+                    return MultiplyImageToMask(matrix, _jS50).ToBitmap();
+				case "Subdiv21":
+					return MultiplyImageToMask(matrix, _sub21).ToBitmap();
+				default:
                     throw new NotImplementedException("Даний фільтр ще не реалізовано");
             }
         }
         public Bitmap ApplyFilter(Bitmap image, string filterName, List<Point> pointsToApply)
         {
-            var matrix = new ImageMatrix(BitmapToByteRgbQ(image));
+            var matrix = BitmapToByteRgbQ(image);
             switch (filterName)
             {
                 case "JL20":
-                    return MultiplyImageToMask(matrix, JL20, pointsToApply).ToBitmap();
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jL20, pointsToApply));
                 case "JL30":                               
-                    return MultiplyImageToMask(matrix, JL30, pointsToApply).ToBitmap();
-                case "JL40":                               
-                    return MultiplyImageToMask(matrix, JL40, pointsToApply).ToBitmap();
-                case "JL50":                               
-                    return MultiplyImageToMask(matrix, JL50, pointsToApply).ToBitmap();
-                case "JH20":                               
-                    return MultiplyImageToMask(matrix, JH20, pointsToApply).ToBitmap();
-                case "JH30":                               
-                    return MultiplyImageToMask(matrix, JH30, pointsToApply).ToBitmap();
-                case "JH40":                               
-                    return MultiplyImageToMask(matrix, JH40, pointsToApply).ToBitmap();
-                case "JH50":                               
-                    return MultiplyImageToMask(matrix, JH50, pointsToApply).ToBitmap();
-                case "JK20":                               
-                    return MultiplyImageToMask(matrix, JK20, pointsToApply).ToBitmap();
-                case "JK30":                               
-                    return MultiplyImageToMask(matrix, JK30, pointsToApply).ToBitmap();
-                //case "JK40":
-                //    return MultiplyImageToMask(matrix, JK40).ToBitmap();
-                //case "JK50":
-                //    return MultiplyImageToMask(matrix, JK50).ToBitmap();
-                case "JS20":
-                    return MultiplyImageToMask(matrix, JS20, pointsToApply).ToBitmap();
-                case "JS30":                               
-                    return MultiplyImageToMask(matrix, JS30, pointsToApply).ToBitmap();
-                case "JS40":                               
-                    return MultiplyImageToMask(matrix, JS40, pointsToApply).ToBitmap();
-                case "JS50":                               
-                    return MultiplyImageToMask(matrix, JS50, pointsToApply).ToBitmap();
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jL30, pointsToApply));
+                case "JL40":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jL40, pointsToApply));
+                case "JL50":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jL50, pointsToApply));
+                case "JH20":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jH20, pointsToApply));
+                case "JH30":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jH30, pointsToApply));
+                case "JH40":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jH40, pointsToApply));
+                case "JH50":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jH50, pointsToApply));
+                case "JK20":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jK20, pointsToApply));
+                case "JK30":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jK30, pointsToApply));
+                //case "JK40":                                             
+                //    return MultiplyImageToMask(matrix, JK40).ToBitmap(); 
+                //case "JK50":                                             
+                //    return MultiplyImageToMask(matrix, JK50).ToBitmap(); 
+                case "JS20":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jS20, pointsToApply));
+                case "JS30":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jS30, pointsToApply));
+                case "JS40":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jS40, pointsToApply));
+                case "JS50":                                               
+                    return RgbToBitmapQ(MultiplyImageToMask(matrix, _jS50, pointsToApply));
                 default:
                     throw new NotImplementedException("Даний фільтр ще не реалізовано");
             }
@@ -321,9 +151,9 @@ namespace CommonModel
             var res = new ImageMatrix(P.Width, P.Height);
             try
             {
-                for (int i = indent; i < P.Width - indent; i++)
+                for (int i = 0/*indent*/; i < P.Width /*- indent*/; i++)
                 {
-                    for (int j = indent; j < P.Height - indent; j++)
+                    for (int j = 0/*indent*/; j < P.Height /*- indent*/; j++)
                     {
                         res[i, j] = ApplyFilterToPixel(i, j, P, mask);
                     }
@@ -336,23 +166,61 @@ namespace CommonModel
 
             return res;
         }
-        public ImageMatrix MultiplyImageToMask(ImageMatrix P, Mask mask, List<Point> pointsToApply)
+
+	    public ImageMatrix MultiplyImageToMask(ImageMatrix P, List<Mask> masks)
+	    {
+		    if (masks.Count != 4)
+		    {
+			    throw new ArgumentException("Для Subdivision потрібно 4 матриці");
+		    }
+
+		    var indent = masks[0].Length;
+		    var res = new ImageMatrix(P.Width * 2, P.Height * 2);
+		    try
+		    {
+				for (int i = indent; i < P.Width - indent; i++)
+				{
+					for (int j = indent; j < P.Height - indent; j++)
+					{
+						res[2 * i, 2 * j] = ApplyFilterToPixel(i, j, P, masks[0]);
+						res[2 * i + 1, 2 * j] = ApplyFilterToPixel(i, j, P, masks[1]);
+						res[2 * i, 2 * j + 1] = ApplyFilterToPixel(i, j, P, masks[2]);
+						res[2 * i + 1, 2 * j + 1] = ApplyFilterToPixel(i, j, P, masks[3]);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				
+			}
+
+			return res;
+		}
+
+		public byte[,,] MultiplyImageToMask(byte[,,] P, Mask mask, List<Point> pointsToApply)
         {
             var indent = mask.Length / 2;
-            var res = new ImageMatrix(P.Width, P.Height);
+            var width = P.GetLength(1);
+            var height = P.GetLength(2);
+            var res = new byte[3, width, height];
             try
             {
-                for (int i = indent; i < P.Width - indent; i++)
+
+                for (int i = indent; i < width - indent; i++)
                 {
-                    for (int j = indent; j < P.Height - indent; j++)
+                    for (int j = indent; j < height - indent; j++)
                     {
                         if (pointsToApply.Contains(new Point(i, j)))
                         {
-                            res[i, j] = ApplyFilterToPixel(i, j, P, mask);
+                            //var startTime = DateTime.Now;
+                            ApplyFilterToPixel(i, j, P, mask, res);
+                            //var endTime = (DateTime.Now - startTime).TotalMilliseconds;
                         }
                         else
                         {
-                            res[i, j] = P[i, j];
+                            res[0, i, j] = P[0, i, j];
+                            res[1, i, j] = P[1, i, j];
+                            res[2, i, j] = P[2, i, j];
                         }
                     }
                 }
@@ -373,21 +241,105 @@ namespace CommonModel
             {
                 for (int jj = j - indent; jj <= j + indent; jj++)
                 {
-                    r += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[ii, jj].R) / mask.Denominator);
-                    g += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[ii, jj].G) / mask.Denominator);
-                    b += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[ii, jj].B) / mask.Denominator);
+					// to remove black borders
+	                var iInd = ii < 0 ? 0 : ii > P.Width - 1 ? P.Width - 1 : ii;
+	                var jInd = jj < 0 ? 0 : jj > P.Height - 1 ? P.Height - 1 : jj;
+					//r += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[ii, jj].R) / mask.Denominator);
+					//g += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[ii, jj].G) / mask.Denominator);
+					//b += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[ii, jj].B) / mask.Denominator);
+
+					r += ((mask[ii - i + indent, jj - j + indent] * P[iInd, jInd].R) / mask.Denominator);
+                    g += ((mask[ii - i + indent, jj - j + indent] * P[iInd, jInd].G) / mask.Denominator);
+                    b += ((mask[ii - i + indent, jj - j + indent] * P[iInd, jInd].B) / mask.Denominator);
+
+                    //r += ((mask[ii - i + indent, jj - j + indent] * P[ii, jj].R) / mask.Denominator);
+                    //g += ((mask[ii - i + indent, jj - j + indent] * P[ii, jj].G) / mask.Denominator);
+                    //b += ((mask[ii - i + indent, jj - j + indent] * P[ii, jj].B) / mask.Denominator);
+                }
+            }
+            //if (r > 1 || g > 1 || b > 1)
+            //{
+              //  return new Pixel(255, 255, 255);
+            //}
+            //else
+            {
+              //  return new Pixel(0, 0, 0);
+                return new Pixel(Convert.ToInt16(r), Convert.ToInt16(g), Convert.ToInt16(b));
+            }
+
+            //return new Pixel(_getByteInCorrectBorders((int)r), _getByteInCorrectBorders((int)g), _getByteInCorrectBorders((int)b));
+
+            //return new Pixel(Convert.ToByte((int)r), Convert.ToByte((int)g), Convert.ToByte((int)b));
+        }
+        private void ApplyFilterToPixel(int i, int j, byte[,,] P, Mask mask, byte[,,] resArr)
+        {
+            var indent = mask.Length / 2;
+            int r = 0, g = 0, b = 0;
+            for (int ii = i - indent; ii <= i + indent; ii++)
+            {
+                for (int jj = j - indent; jj <= j + indent; jj++)
+                {
+                    r += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[0, ii, jj]) / mask.Denominator);
+                    g += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[1, ii, jj]) / mask.Denominator);
+                    b += Convert.ToInt16((mask[ii - i + indent, jj - j + indent] * P[2, ii, jj]) / mask.Denominator);
+
                     //r += ((mask[ii - i + indent, jj - j + indent] * P[ii, jj].R) / mask.Denominator);
                     //g += ((mask[ii - i + indent, jj - j + indent] * P[ii, jj].G) / mask.Denominator);
                     //b += ((mask[ii - i + indent, jj - j + indent] * P[ii, jj].B) / mask.Denominator);
                 }
             }
 
-            return new Pixel(_getByteInCorrectBorders((int)r), _getByteInCorrectBorders((int)g), _getByteInCorrectBorders((int)b));
+            resArr[0, i, j] = _getByteInCorrectBorders(r);
+            resArr[1, i, j] = _getByteInCorrectBorders(g);
+            resArr[2, i, j] = _getByteInCorrectBorders(b);
+            
+            //return new Pixel(_getByteInCorrectBorders((int)r), _getByteInCorrectBorders((int)g), _getByteInCorrectBorders((int)b));
+
             //return new Pixel(Convert.ToByte((int)r), Convert.ToByte((int)g), Convert.ToByte((int)b));
         }
         private static byte _getByteInCorrectBorders(int num)
         {
             return Convert.ToByte(num < 0 ? 0 : num > 255 ? 255 : num);
+        }
+        private unsafe Bitmap RgbToBitmapQ(byte[,,] rgb)
+        {
+            if ((rgb.GetLength(0) != 3))
+            {
+                throw new ArrayTypeMismatchException("Size of first dimension for passed array must be 3 (RGB components)");
+            }
+
+            int width = rgb.GetLength(2),
+                height = rgb.GetLength(1);
+
+            Bitmap result = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+
+            BitmapData bd = result.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly,
+                PixelFormat.Format24bppRgb);
+
+            try
+            {
+                byte* curpos;
+                fixed (byte* _rgb = rgb)
+                {
+                    byte* _r = _rgb, _g = _rgb + width * height, _b = _rgb + 2 * width * height;
+                    for (int h = 0; h < height; h++)
+                    {
+                        curpos = ((byte*)bd.Scan0) + h * bd.Stride;
+                        for (int w = 0; w < width; w++)
+                        {
+                            *(curpos++) = *_b; ++_b;
+                            *(curpos++) = *_g; ++_g;
+                            *(curpos++) = *_r; ++_r;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                result.UnlockBits(bd);
+            }
+
+            return result;
         }
 
         public unsafe byte[,,] BitmapToByteRgb(Bitmap bmp)
@@ -651,107 +603,125 @@ namespace CommonModel
 
     public struct Pixel
     {
-        public byte A { get; set; }
-        public byte R { get; set; }
-        public byte G { get; set; }
-        public byte B { get; set; }
+        public int R { get; set; }
+        public int G { get; set; }
+        public int B { get; set; }
         
-        public Pixel(byte r, byte g, byte b) : this(255, r, g, b) { }
-        public Pixel(byte a, byte r, byte g, byte b)
+        public Pixel(int r, int g, int b)
         {
             R = r;
             G = g;
             B = b;
-            A = a;
         }
     }
-
-    public struct Mask
-    {
-        public double[][] Matrix { get; set; }
-        public long Denominator { get; set; }
-
-        public int Length => Matrix != null ? Matrix.Length : -1;
-
-        public double this[int i, int j]
-        {
-            get
-            {
-                return Matrix[i][j];
-            }
-            set
-            {
-                Matrix[i][j] = value;
-            }
-        }
-
-        public Mask(double[][] mask, long denominator)
-        {
-            Matrix = mask;
-            Denominator = denominator;
-        }
-    }
-
+	
     public class ImageMatrix
     {
-        private Pixel[][] Pixels;
+        private readonly Pixel[][] _pixels;
 
-        public int Width => Pixels.Length;
-        public int Height => Pixels[0].Length;
+        public int Width => _pixels.Length;
 
+        public int Height => _pixels[0].Length;
 
         public Pixel this[int i, int j]
         {
             get
             {
-                return Pixels[i][j];
+                return _pixels[i][j];
             }
             set
             {
-                Pixels[i][j] = value;
+                _pixels[i][j] = value;
             }
         }
 
-
-        //public ImageMatrix(double[][] pixels)
-        //{
-        //    Pixels = new Pixel[][];
-        //}
         public ImageMatrix(byte[,,] pixels) : this(pixels.GetLength(1), pixels.GetLength(2))
         {
             for (int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    Pixels[i][j] = new Pixel(pixels[0, i, j], pixels[1, i, j], pixels[2, i, j]);
+                    _pixels[i][j] = new Pixel(pixels[0, i, j], pixels[1, i, j], pixels[2, i, j]);
                 }
             }
         }
         public ImageMatrix(int width, int height)
         {
-            Pixels = new Pixel[width][];
+            _pixels = new Pixel[width][];
             for (int j = 0; j < width; j++)
             {
-                Pixels[j] = new Pixel[height];
+                _pixels[j] = new Pixel[height];
             }
         }
         public ImageMatrix() { }
 
+
         public Bitmap ToBitmap()
         {
-            var pixels = new byte[3, Width, Height];
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    pixels[0, i, j] = Pixels[i][j].R;
-                    pixels[1, i, j] = Pixels[i][j].G;
-                    pixels[2, i, j] = Pixels[i][j].B;
-                }
-            }
-            return RgbToBitmapQ(pixels);
+            //var pixels = new byte[3, Width, Height];
+            //for (int i = 0; i < Width; i++)
+            //{
+            //    for (int j = 0; j < Height; j++)
+            //    {
+            //        pixels[0, i, j] = (byte)Pixels[i][j].R;
+            //        pixels[1, i, j] = (byte)Pixels[i][j].G;
+            //        pixels[2, i, j] = (byte)Pixels[i][j].B;
+            //    }
+            //}
+            //return RgbToBitmapQ(pixels);
+            return RgbToBitmapQ(ScalePixels(_pixels));
         }
-        
+
+
+        public byte[,,] ScalePixels(Pixel[][] pixels)
+        {
+            var res = new byte[3, pixels.Length, pixels[0].Length];
+
+			//   var maxR = pixels.Max(row => row.Max(p => p.R));
+			//   var maxG = pixels.Max(row => row.Max(p => p.G));
+			//   var maxB = pixels.Max(row => row.Max(p => p.B));
+
+			//   var minR = pixels.Min(row => row.Min(p => p.R));
+			//   var minG = pixels.Min(row => row.Min(p => p.G));
+			//   var minB = pixels.Min(row => row.Min(p => p.B));
+
+			//minR = minG = minB = Math.Min(Math.Min(minR, minG), minB);
+			//maxR = maxG = maxB = Math.Max(Math.Max(maxR, maxG), maxB);
+
+
+			//var maxR = pixels.Max(row => row.Max(p => Math.Abs(p.R)));
+			//var maxG = pixels.Max(row => row.Max(p => Math.Abs(p.G)));
+			//var maxB = pixels.Max(row => row.Max(p => Math.Abs(p.B)));
+													  			   
+			//var minR = pixels.Min(row => row.Min(p => Math.Abs(p.R)));
+			//var minG = pixels.Min(row => row.Min(p => Math.Abs(p.G)));
+			//var minB = pixels.Min(row => row.Min(p => Math.Abs(p.B)));
+
+			//minR = minG = minB = Math.Min(Math.Min(minR, minG), minB);
+			//maxR = maxG = maxB = Math.Max(Math.Max(maxR, maxG), maxB);
+
+			for (int i = 0; i < pixels.Length; i++)
+            {
+                for (int j = 0; j < pixels[0].Length; j++)
+                {
+					//res[0, i, j] = (byte)pixels[i][j].R < 127 ? (byte)0 : (byte)255;
+					//res[1, i, j] = (byte)pixels[i][j].G < 127 ? (byte)0 : (byte)255;
+					//res[2, i, j] = (byte)pixels[i][j].B < 127 ? (byte)0 : (byte)255;
+
+					//res[0, i, j] = (byte)((double)(pixels[i][j].R - minR) * 255 / (maxR - minR));
+					//res[1, i, j] = (byte)((double)(pixels[i][j].G - minG) * 255 / (maxG - minG));
+					//res[2, i, j] = (byte)((double)(pixels[i][j].B - minB) * 255 / (maxB - minB));
+
+					res[0, i, j] = (byte)(pixels[i][j].R < 0 ? 0 : pixels[i][j].R > 255 ? 255 : pixels[i][j].R);
+					res[1, i, j] = (byte)(pixels[i][j].G < 0 ? 0 : pixels[i][j].G > 255 ? 255 : pixels[i][j].G);
+					res[2, i, j] = (byte)(pixels[i][j].B < 0 ? 0 : pixels[i][j].B > 255 ? 255 : pixels[i][j].B);
+				}
+            }
+
+            return res;
+        }
+
+
         private unsafe Bitmap RgbToBitmapQ(byte[,,] rgb)
         {
             if ((rgb.GetLength(0) != 3))
