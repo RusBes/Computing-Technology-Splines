@@ -31,11 +31,12 @@ namespace Laba1.View
         public event EventHandler ScopeTogglerClicked;
         public event EventHandler<PicureBoxEventArgs> PictureBoxMouseEnter;
         public event EventHandler<PicureBoxEventArgs> PictureBoxMouseLeave;
-        public event EventHandler<PicureBoxMouseEventArgs> PictureBoxMouseMove;
+        public event EventHandler<MouseEventArgs> PictureBoxMouseMove;
         public event EventHandler<PicureBoxFilterEventArgs> PictureBoxMouseDown;
-        public event EventHandler<PicureBoxMouseEventArgs> PictureBoxMouseUp;
+        public event EventHandler<MouseEventArgs> PictureBoxMouseUp;
+	    public event EventHandler<MouseEventArgs> PictureBoxMouseDoubleClick;
 
-        public void DrawGraphic(IEnumerable<double[]> points, IEnumerable<double[]> nodalPoints)
+		public void DrawGraphic(IEnumerable<double[]> points, IEnumerable<double[]> nodalPoints)
         {
             chartMain.Series[0].Points.Clear();
             chartMain.Series[1].Points.Clear();
@@ -191,14 +192,6 @@ namespace Laba1.View
 
         private string[] GetCheckedGraphics()
         {
-            //var graphics = new List<string>();
-            //foreach (var chb in gbSplineTypes.Controls)
-            //{
-            //    if (chb is CheckBox && (chb as CheckBox).Checked)
-            //    {
-            //        graphics.Add((chb as CheckBox).Name.Replace("chb", "S"));
-            //    }
-            //}
             var graphics = FindAllControls<CheckBox>(gbSplineTypes).Where(chb => chb.Checked).Select(chb => chb.Name.Replace("chb", "S"));
             return graphics.ToArray();
         }
@@ -374,7 +367,7 @@ namespace Laba1.View
 
         private void pbImages_MouseMove(object sender, MouseEventArgs e)
         {
-            PictureBoxMouseMove?.Invoke(sender, new PicureBoxMouseEventArgs(pbBefor, e.Location));
+            PictureBoxMouseMove?.Invoke(sender, e);
         }
 
         private void pbAImages_MouseDown(object sender, MouseEventArgs e)
@@ -392,32 +385,24 @@ namespace Laba1.View
 
         private void pbImages_MouseUp(object sender, MouseEventArgs e)
         {
-            PictureBoxMouseUp?.Invoke(sender, new PicureBoxMouseEventArgs(pbBefor, e.Location));
+            PictureBoxMouseUp?.Invoke(sender, e);
         }
-    }
+
+		private void pb_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			PictureBoxMouseDoubleClick?.Invoke(sender, e);
+		}
+	}
 
 
 
-    public class PicureBoxEventArgs : EventArgs
+	public class PicureBoxEventArgs : EventArgs
     {
         public PictureBox PictureBox { get; }
 
         public PicureBoxEventArgs(PictureBox pb)
         {
             PictureBox = pb;
-        }
-    }
-
-    public class PicureBoxMouseEventArgs : EventArgs
-    {
-        public PictureBox PictureBox { get; }
-
-        public Point Location { get; }
-
-        public PicureBoxMouseEventArgs(PictureBox pb, Point location)
-        {
-            PictureBox = pb;
-            Location = location;
         }
     }
 }

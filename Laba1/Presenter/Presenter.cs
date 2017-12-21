@@ -53,7 +53,15 @@ namespace Laba1.Presenter
             _view = view;
             _model = new Model();
 
-            _view.Settings = _model.Settings;
+
+	        try
+	        {
+		        _model.LoadBitmap(@"E:\University\5 KURS\Computing technology\Laba1\Chamomile_flowers.jpg");
+		        _view.ShowImageBefore(_model.Image);
+	        }
+	        catch { }
+
+	        _view.Settings = _model.Settings;
             _view.Init();
             _view.SettingChanged += _settingChangedHandler;
             _view.BuildGraphicsNeeded += _buildGraphicsHandler;
@@ -69,43 +77,55 @@ namespace Laba1.Presenter
             _view.PictureBoxMouseEnter += _pictureBoxMousenterHandler;
             _view.PictureBoxMouseLeave+= _pictureBoxMouseLeaveHandler;
             _view.PictureBoxMouseMove += _pictureBoxMouseMoveHandler;
+
+			_view.PictureBoxMouseDoubleClick += _view_PictureBoxMouseDoubleClick;
         }
 
-        private void _pictureBoxMouseDownHandler(object sender, PicureBoxFilterEventArgs e)
+		private void _view_PictureBoxMouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			var pbSender = sender as PictureBox;
+			var image = pbSender == _view.pbBefor ? _model.Image : pbSender == _view.pbAfter ? _model.FilteredImage : null;
+			if (image == null || _view.ScopeState != ScopeStates.Off)
+			{
+				return;
+			}
+
+			var form = new Form {ClientSize = image.Size};
+			var pb = new PictureBox()
+			{
+				Dock = DockStyle.Fill,
+				Image = image
+			};
+			form.Controls.Add(pb);
+			form.Show();
+		}
+
+		private void _pictureBoxMouseDownHandler(object sender, PicureBoxFilterEventArgs e)
         {
             if(_view.ScopeState == ScopeStates.On)
             {
-                _view.ScopeState = ScopeStates.Applied;
+				throw new NotImplementedException();
+                //_view.ScopeState = ScopeStates.Applied;
 
-                var startTime = DateTime.Now;
+                //var points = new List<Point>();
+                //var radius = _model.ScopeRadius;
+                //var topLeft = (new Point(_center.X - radius, _center.Y + radius));
+                //var botRight = (new Point(_center.X + radius, _center.Y - radius));
+                //for (int i = topLeft.X; i < botRight.X; i++)
+                //{
+                //    for (int j = topLeft.Y; j > botRight.Y; j--)
+                //    {
+                //        points.Add(new Point(j, i));
+                //    }
+                //}
 
-                var points = new List<Point>();
-                var radius = _model.ScopeRadius;
-                var topLeft = (new Point(_center.X - radius, _center.Y + radius));
-                var botRight = (new Point(_center.X + radius, _center.Y - radius));
-                for (int i = topLeft.X; i < botRight.X; i++)
-                {
-                    for (int j = topLeft.Y; j > botRight.Y; j--)
-                    {
-                        points.Add(new Point(j, i));
-                    }
-                }
-
-                var endCalcPoints = (DateTime.Now - startTime).TotalMilliseconds;
-                var startFilteringTime = DateTime.Now;
-
-                var newImage = _model.ApplyFilter(_model.Image, e.Filter, points);
-
-                var endFiltering = (DateTime.Now - startFilteringTime).TotalMilliseconds;
-
-                _view.ShowImageBefore(newImage);
-
-
-                var endTime = (DateTime.Now - startTime).TotalMilliseconds;
+                //var newImage = _model.ApplyFilter(_model.Image, e.Filter, points);
+				
+                //_view.ShowImageBefore(newImage);
             }
         }
 
-        private void _pictureBoxMouseUpHandler(object sender, PicureBoxMouseEventArgs e)
+        private void _pictureBoxMouseUpHandler(object sender, MouseEventArgs e)
         {
             if (_view.ScopeState == ScopeStates.Applied)
             {
@@ -118,28 +138,25 @@ namespace Laba1.Presenter
         {
             if(_view.ScopeState == ScopeStates.On)
             {
-                e.PictureBox.Paint += _pictureBox_PaintHandler;
-                _drawCounter++;
+	            (sender as PictureBox).Paint += _pictureBox_PaintHandler;
                 //DrawContur(Cursor.Position, Color.Red, e.PictureBox.CreateGraphics(), e.PictureBox);
             }
         }
 
-        int _drawCounter = 0;
         private void _pictureBoxMouseLeaveHandler(object sender, PicureBoxEventArgs e)
         {
             if (_view.ScopeState == ScopeStates.On)
             {
-                e.PictureBox.Paint -= _pictureBox_PaintHandler;
-                _drawCounter--;
+                (sender as PictureBox).Paint -= _pictureBox_PaintHandler;
                 //DrawContur(Cursor.Position, Color.Red, e.PictureBox.CreateGraphics(), e.PictureBox);
             }
             //_view.ScopeState = ScopeStates.Off;
         }
 
-        private void _pictureBoxMouseMoveHandler(object sender, PicureBoxMouseEventArgs e)
+        private void _pictureBoxMouseMoveHandler(object sender, MouseEventArgs e)
         {
             _center = e.Location;
-            e.PictureBox.Invalidate();
+	        (sender as PictureBox).Invalidate();
             //if (_view.ScopeState == ScopeStates.On)
             //{
                 //DrawContur(e.Location, Color.Red, e.PictureBox.CreateGraphics(), e.PictureBox);
@@ -191,6 +208,8 @@ namespace Laba1.Presenter
                 var modifying = _model.ApplyFilter(_model.Image, e.Name);
                 //_model.Image = modifying;
                 _view.ShowImageAfter(modifying);
+	            _model.FilteredImage = modifying;
+
             }
             catch(Exception ex)
             {

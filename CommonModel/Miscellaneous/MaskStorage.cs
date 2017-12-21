@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CommonModel.OneDimSplines;
 
 namespace CommonModel.Classes
 {
-	class MaskStorage
+	static class FilterStorage
 	{
-		private bool _isInit = false;
+		private static Dictionary<string, IMaskFilter> _masks;
 
-		private Dictionary<string, Mask> _masks;
+		private static Dictionary<string, Vector> _vectors;
 
 		// Low
-		private readonly Mask _jL20 = new Mask(
+		private static readonly ImageMask Jl20 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, 6, 1 },
@@ -21,7 +19,7 @@ namespace CommonModel.Classes
 				new double[] { 1, 6, 1 }
 			}, 64);
 
-		private readonly Mask _jL30 = new Mask(
+		private static readonly ImageMask Jl30 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, 4, 1 },
@@ -29,7 +27,7 @@ namespace CommonModel.Classes
 				new double[] { 1, 4, 1 }
 			}, 36);
 
-		private readonly Mask _jL40 = new Mask(
+		private static readonly ImageMask Jl40 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, 76, 230, 76, 1},
@@ -39,7 +37,7 @@ namespace CommonModel.Classes
 				new double[] { 76, 5776, 17480, 5776, 76}
 			}, 147456);
 
-		private readonly Mask _jL50 = new Mask(
+		private static readonly ImageMask Jl50 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, 26, 66, 26, 1},
@@ -50,7 +48,7 @@ namespace CommonModel.Classes
 			}, 14400);
 
 		// Hight
-		private readonly Mask _jH20 = new Mask(
+		private static readonly ImageMask Jh20 = new ImageMask(
 			new[]
 			{
 				new double[] { -1, -6, -1},
@@ -58,7 +56,7 @@ namespace CommonModel.Classes
 				new double[] { -1, -6, -1}
 			}, 64);
 
-		private readonly Mask _jH30 = new Mask(
+		private static readonly ImageMask Jh30 = new ImageMask(
 			new[]
 			{
 				new double[] { -1, -4, -1},
@@ -66,7 +64,7 @@ namespace CommonModel.Classes
 				new double[] { -1, -4, -1}
 			}, 36);
 
-		private readonly Mask _jH40 = new Mask(
+		private static readonly ImageMask Jh40 = new ImageMask(
 			new[]
 			{
 				new double[] { -1, -76, -230, -76, -1},
@@ -76,7 +74,7 @@ namespace CommonModel.Classes
 				new double[] { -76, -5776, -17480, -5776, -76}
 			}, 147456);
 
-		private readonly Mask _jH50 = new Mask(
+		private static readonly ImageMask Jh50 = new ImageMask(
 			new[]
 			{
 				new double[] { -1, -26, -66,-276, -1},
@@ -88,7 +86,7 @@ namespace CommonModel.Classes
 			}, 14400);
 
 		// Kontrast
-		private readonly Mask _jK20 = new Mask(
+		private static readonly ImageMask Jk20 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, -8, 48, -8, 1},
@@ -98,7 +96,7 @@ namespace CommonModel.Classes
 				new double[] { 1, -8, 48, -8, 1}
 			}, 1156);
 
-		private readonly Mask _jK30 = new Mask(
+		private static readonly ImageMask Jk30 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, -6, 24, -6, 1},
@@ -108,7 +106,7 @@ namespace CommonModel.Classes
 				new double[] { 1, -6, 24, -6, 1}
 			}, 196);
 
-		private readonly Mask _jK40 = new Mask(
+		private static readonly ImageMask Jk40 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, -8, 48, -8, 1},
@@ -118,7 +116,7 @@ namespace CommonModel.Classes
 				new double[] { 1, -8, 48, -8, 1}
 			}, 1);
 
-		private readonly Mask _jK50 = new Mask(
+		private static readonly ImageMask Jk50 = new ImageMask(
 			new[]
 			{
 				new double[] { 1, 6, 1 },
@@ -127,7 +125,7 @@ namespace CommonModel.Classes
 			}, 25784009476);
 
 		// stabilisators
-		private readonly Mask _jS20 = new Mask(
+		private static readonly ImageMask Js20 = new ImageMask(
 			new[]
 			{
 				new[] {3.75457E-09,8.93587E-07,5.40282E-06,-7.38748E-05, 5.40282E-06, 8.93587E-07, 3.75457E-09 },
@@ -139,7 +137,7 @@ namespace CommonModel.Classes
 				new[] {3.75457E-09,8.93587E-07,5.40282E-06,-7.38748E-05, 5.40282E-06, 8.93587E-07, 3.75457E-09 }
 			}, 1);
 
-		private readonly Mask _jS30 = new Mask(
+		private static readonly ImageMask Js30 = new ImageMask(
 			new[]
 			{
 				new[] {1.24562E-08,2.96456E-06,1.159314E-05,-0.000149424,1.159314E-05,2.96456E-06,1.24562E-08 },
@@ -151,7 +149,7 @@ namespace CommonModel.Classes
 				new[] { 1.24562E-08,2.96456E-06,1.159314E-05,-0.000149424,1.159314E-05,2.96456E-06,1.24562E-08}
 			}, 1);
 
-		private readonly Mask _jS40 = new Mask(
+		private static readonly ImageMask Js40 = new ImageMask(
 			new[]
 			{
 				new[] {1.6236E-10,4.1165E-08,9.20847E-07,2.14132E-06,-1.8949E-05,2.14132E-06,9.20847E-07,4.1165E-08 ,1.6236E-10},
@@ -165,7 +163,7 @@ namespace CommonModel.Classes
 				new[] {1.6236E-10,4.1165E-08,9.20847E-07,2.14132E-06,-1.8949E-05,2.14132E-06,9.20847E-07,4.1165E-08 ,1.6236E-10 }
 			}, 1);
 
-		private readonly Mask _jS50 = new Mask(
+		private static readonly ImageMask Js50 = new ImageMask(
 			new[]
 			{
 				new[] {5.26177E-10,1.32248E-07,3.7676E-06,4.92362E-06,-3.85865E-05,4.92362E-06,3.7676E-06,1.32248E-07,5.26177E-10},
@@ -179,17 +177,17 @@ namespace CommonModel.Classes
 				new[] {5.26177E-10,1.32248E-07,3.7676E-06,4.92362E-06,-3.85865E-05,4.92362E-06,3.7676E-06,1.32248E-07,5.26177E-10 }
 			}, 1);
 
-		private List<Mask> _sub21 = new List<Mask>()
+		private static readonly ComposedMask Sub21 = new ComposedMask
 		{
-			new Mask(new[]
+			A = new ImageMask(new[]
 			{
-				new double[] {1, -2, 46, -2, 1},
+				new double[] {1, -2, -46, -2, 1},
 				new double[] {-2, 4, 92, 4, -2},
 				new double[] {-46, 92, 2116, 92, -46},
 				new double[] {-2, 4, 92, 4, -2},
-				new double[] {1, -2, 46, -2, 1}
+				new double[] {1, -2, -46, -2, 1}
 			}, 2304),
-			new Mask(new[]
+			C = new ImageMask(new[]
 			{
 				new double[] { 0, 1, -7, -7, 1 },
 				new double[] { 0, -2, 14, 14, -2 },
@@ -197,7 +195,7 @@ namespace CommonModel.Classes
 				new double[] { 0, -2, 14, 14, -2 },
 				new double[] { 0, 1, -7, -7, 1 }
 			}, 576),
-			new Mask(new[]
+			B = new ImageMask(new[]
 			{
 				new double[] {0, 0, 0, 0, 0},
 				new double[] {1, -2, -46, -2, 1},
@@ -205,7 +203,7 @@ namespace CommonModel.Classes
 				new double[] {-7, 14, 322, 14,-7},
 				new double[] { 1, -2, -46, -2, 1 }
 			}, 576),
-			new Mask(new[]
+			D = new ImageMask(new[]
 			{
 				new double[] { 0, 0, 0, 0, 0 },
 				new double[] { 0, 1, -7, -7, 1 },
@@ -215,33 +213,144 @@ namespace CommonModel.Classes
 			}, 144)
 		};
 
-		private void Init()
+		private static readonly HaarMask Haar = new HaarMask()
 		{
-			_masks = new Dictionary<string, Mask>();
-			_masks.Add("JL20", _jL20);
-			_masks.Add("JL30", _jL30);
-			_masks.Add("JL40", _jL40);
-			_masks.Add("JL50", _jL50);
-			_masks.Add("JH20", _jH20);
-			_masks.Add("JH30", _jH30);
-			_masks.Add("JH40", _jH40);
-			_masks.Add("JH50", _jH50);
-			_masks.Add("JK20", _jK20);
-			_masks.Add("JK30", _jK30);
-			_masks.Add("JK40", _jK40);
-			_masks.Add("JK50", _jK50);
-			_masks.Add("JS20", _jS20);
-			_masks.Add("JS30", _jS30);
-			_masks.Add("JS40", _jS40);
-			_masks.Add("JS50", _jS50);
-			_masks.Add("sub21", _sub21);
+			A = new ImageMask(new[]
+			{
+				new double[] { 1, 1 },
+				new double[] { 1, 1 }
+			}, 4),
+			B = new ImageMask(new[]
+			{
+				new double[] { 1, 1 },
+				new double[] { -1, -1 }
+			}, 4),
+			C = new ImageMask(new[]
+			{
+				new double[] { 1, -1 },
+				new double[] { 1, -1 }
+			}, 4),
+			D = new ImageMask(new[]
+			{
+				new double[] { 1, -1 },
+				new double[] { -1, 1 }
+			}, 4)
+		};
+		private static readonly Vector Vl20;
+		private static readonly Vector Vl30;
+		private static readonly Vector Vl40;
+		private static readonly Vector Vl50;
+		private static readonly Vector Vh20;
+		private static readonly Vector Vh30;
+		private static readonly Vector Vh40;
+		private static readonly Vector Vh50;
+		private static readonly Vector Vk20;
+		private static readonly Vector Vk30;
+		private static readonly Vector Vk40;
+		private static readonly Vector Vk50;
+		private static readonly Vector Vs20;
+		private static readonly Vector Vs30;
+		private static readonly Vector Vs40;
+		private static readonly Vector Vs50;
 
-			_isInit = true;
+		private static void InitMasks()
+		{
+			_masks = new Dictionary<string, IMaskFilter>
+			{
+				{"JL20", Jl20},
+				{"JL30", Jl30},
+				{"JL40", Jl40},
+				{"JL50", Jl50},
+				{"JH20", Jh20},
+				{"JH30", Jh30},
+				{"JH40", Jh40},
+				{"JH50", Jh50},
+				{"JK20", Jk20},
+				{"JK30", Jk30},
+				{"JK40", Jk40},
+				{"JK50", Jk50},
+				{"JS20", Js20},
+				{"JS30", Js30},
+				{"JS40", Js40},
+				{"JS50", Js50},
+				{"Subdiv21", Sub21},
+				{"Haar", Haar}
+			};
 		}
 
-		public void Get(string name)
+		private static void InitVectors()
 		{
-			
+			_vectors = new Dictionary<string, Vector>
+			{
+				{"VL20", Vl20},
+				{"VL30", Vl30},
+				{"VL40", Vl40},
+				{"VL50", Vl50},
+				{"VH20", Vh20},
+				{"VH30", Vh30},
+				{"VH40", Vh40},
+				{"VH50", Vh50},
+				{"VK20", Vk20},
+				{"VK30", Vk30},
+				{"VK40", Vk40},
+				{"VK50", Vk50},
+				{"VS20", Vs20},
+				{"VS30", Vs30},
+				{"VS40", Vs40},
+				{"VS50", Vs50}
+			};
 		}
+
+		private static ImageMask _calcMaskFromVectors(double[] column, double[] row, double denominator = 1)
+		{
+			if (row.Length != column.Length)
+			{
+				throw new Exception("Для розразунку матриці потрібна однакова довжина векторів");
+			}
+
+			var len = column.Length;
+			var matrix = new double[len][];
+			for (int i = 0; i < len; i++)
+			{
+				matrix[i] = new double[len];
+				for (int j = 0; j < len; j++)
+				{
+					matrix[i][j] = column[j] * row[i] / denominator;
+				}
+			}
+
+			return new ImageMask(matrix);
+		}
+
+		public static IMaskFilter GetMask(string name)
+		{
+			if (_masks == null)
+			{
+				InitMasks();
+			}
+
+			if (_masks == null || !_masks.ContainsKey(name))
+			{
+				throw new ArgumentException($"Маски \"{name}\" немає в списку");
+			}
+
+			return _masks[name];
+		}
+
+		public static Vector GetVector(string name)
+		{
+			if (_vectors == null)
+			{
+				InitMasks();
+			}
+
+			if (_vectors == null || !_vectors.ContainsKey(name))
+			{
+				throw new ArgumentException($"Фільтру \"{name}\" немає в списку");
+			}
+
+			return _vectors[name];
+		}
+		
 	}
 }

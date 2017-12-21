@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommonModel;
 
-namespace CommonModel
+namespace CommonModel.OneDimSplines
 {
     public class Spline
     {
@@ -70,7 +67,7 @@ namespace CommonModel
                     throw new Exception("Неможливо відтворити графік " + type);
             }
 
-            _isEven = checkIsEven();
+            _isEven = _checkIsEven();
 
 
             if (points == null)
@@ -83,7 +80,7 @@ namespace CommonModel
             _interval = GetInterval(AdditionalPointsCount, n);
         }
 
-        private bool checkIsEven()
+        private bool _checkIsEven()
         {
             var splineRang = Convert.ToInt32(_name[_name.Length - 2]) - '0';
             return splineRang % 2 == 0;
@@ -172,6 +169,7 @@ namespace CommonModel
         }
 
         private double CalculateValueInPointS30(double x, int i)
+
         {
             return (1.0 / 48) * (
                 P[i - 2] * (1 - 3 * x + 3 * x * x - 1 * x * x * x) +
