@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 
-namespace Splain1_1
+namespace CommonModel.TwoDimSplines
 {
     
     class Statistic
@@ -16,8 +12,20 @@ namespace Splain1_1
         double E_B_max = 0;
         double E_max_grey = 0;
 
-        //возвращает массив double средних значений интенсивности каждого цвета на изображении
-        public double[] P_Average(Bitmap bit)
+	    private Bitmap _bmpBefor;
+	    private Bitmap _bmpAfter;
+
+		public Statistic(Bitmap before, Bitmap after)
+	    {
+		    
+	    }
+
+		/// <summary>
+		/// возвращает массив double средних значений интенсивности каждого цвета на изображении
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <returns></returns>
+		public double[] P_Average(Bitmap bit)
         {
             double[] Result = new double[3];
             for(int i=0;i<bit.Height;i++)
@@ -40,8 +48,13 @@ namespace Splain1_1
             return Result;
         }
 
-        //возвращает гамма Е по каждой компоненте
-        public double[] Gamma_E(Bitmap bit_start, Bitmap bit_after)
+		/// <summary>
+		/// возвращает гамма Е по каждой компоненте
+		/// </summary>
+		/// <param name="bit_start"></param>
+		/// <param name="bit_after"></param>
+		/// <returns></returns>
+		public double[] Gamma_E(Bitmap bit_start, Bitmap bit_after)
         {
             double[] result = new double[3];
             double[] E_av = E_average(bit_start, bit_after);
@@ -74,8 +87,13 @@ namespace Splain1_1
 
             return result;  
         }
-        //по всем 3-м компонентам
-        public double[] Delta_E(Bitmap bit_start, Bitmap bit_after)
+		/// <summary>
+		/// возвращает гамма Е по всем 3 компонентам
+		/// </summary>
+		/// <param name="bit_start"></param>
+		/// <param name="bit_after"></param>
+		/// <returns></returns>
+		public double[] Delta_E(Bitmap bit_start, Bitmap bit_after)
         {
             double[] result = new double[3];
 
@@ -113,8 +131,14 @@ namespace Splain1_1
             return result;
         }
 
-        //по чб
-        public double Delta_E(Bitmap bit_start, Bitmap bit_after,bool grey)
+		/// <summary>
+		/// по чб
+		/// </summary>
+		/// <param name="bit_start"></param>
+		/// <param name="bit_after"></param>
+		/// <param name="grey"></param>
+		/// <returns></returns>
+        public double Delta_E_grey(Bitmap bit_start, Bitmap bit_after)
         {
             double result = 0;
 
@@ -145,26 +169,26 @@ namespace Splain1_1
             return result;
         }
 
-        public double[] PSNR(double[] GE)
-        {
-            double[] result = new double[3];
+        //public double[] PSNR(double[] GE)
+        //{
+        //    double[] result = new double[3];
 
-            for(int i=0;i<3;i++)
-            {
-                result[i] =  (10/(Math.Log(10))) * Math.Log((255 * 255) / (GE[i] * GE[i]));
-            }
+        //    for(int i=0;i<3;i++)
+        //    {
+        //        result[i] =  (10/(Math.Log(10))) * Math.Log((255 * 255) / (GE[i] * GE[i]));
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public double PSNR(double GE)
-        {
-            double result = 0;
+        //public double PSNR(double GE)
+        //{
+        //    double result = 0;
 
-                result = (10 / Math.Log(10)) * Math.Log((255 * 255) / (GE * GE));
+        //        result = (10 / Math.Log(10)) * Math.Log((255 * 255) / (GE * GE));
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public double GimmitheholyPSNR(Bitmap btmp11, Bitmap btmp22)
         {
@@ -195,8 +219,14 @@ namespace Splain1_1
             return psnr;
         }
 
-        //возвращает гамма Е по чернобелому
-        public double Gamma_E(Bitmap bit_start, Bitmap bit_after, bool flag)
+		/// <summary>
+		/// возвращает гамма Е по чернобелому
+		/// </summary>
+		/// <param name="bit_start"></param>
+		/// <param name="bit_after"></param>
+		/// <param name="flag"></param>
+		/// <returns></returns>
+		public double Gamma_E(Bitmap bit_start, Bitmap bit_after, bool flag)
         {
             double result =0;
             double E_av = E_average(bit_start, bit_after,true);
@@ -224,8 +254,13 @@ namespace Splain1_1
             return result;
         }
 
-        //возвращает double средних значений интенсивности в чернобелом растре на изображении
-        public double P_Average(Bitmap bit,bool grey)
+		/// <summary>
+		/// возвращает double средних значений интенсивности в чернобелом растре на изображении
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <param name="grey"></param>
+		/// <returns></returns>
+		public double P_Average(Bitmap bit,bool grey)
         {
             double Result=0;
             for (int i = 0; i < bit.Height; i++)
@@ -244,34 +279,43 @@ namespace Splain1_1
             return Result / (bit.Height * bit.Width);
         }
 
-        //возвращает массив double Гамм по интевсивностях каждого цвета
-        public double[] Disp_p(Bitmap bit)
-        {
-            double[] Result = new double[3];
-            double[] p_av = P_Average(bit);
-            for (int i = 0; i < bit.Height; i++)
-            {
-                for (int j = 0; j < bit.Width; j++)
-                {
-                    Color PixerColor = bit.GetPixel(j, i);
-                    double R = PixerColor.R;
-                    double G = PixerColor.G;
-                    double B = PixerColor.B;
+		/// <summary>
+		/// возвращает массив double Гамм по интевсивностях каждого цвета
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <returns></returns>
+		public double[] Disp_p(Bitmap bit)
+		{
+			double[] Result = new double[3];
+			double[] p_av = P_Average(bit);
+			for (int i = 0; i < bit.Height; i++)
+			{
+				for (int j = 0; j < bit.Width; j++)
+				{
+					Color PixerColor = bit.GetPixel(j, i);
+					double R = PixerColor.R;
+					double G = PixerColor.G;
+					double B = PixerColor.B;
 
-                    Result[0] += (R-p_av[0])* (R - p_av[0]);
-                    Result[1] += (G - p_av[1]) * (G - p_av[1]);
-                    Result[2] += (B - p_av[2]) * (B - p_av[2]);
+					Result[0] += (R - p_av[0]) * (R - p_av[0]);
+					Result[1] += (G - p_av[1]) * (G - p_av[1]);
+					Result[2] += (B - p_av[2]) * (B - p_av[2]);
 
-                }
-            }
-            Result[0] = Result[0] / ((bit.Height * bit.Width)-1);
-            Result[1] = Result[1] / ((bit.Height * bit.Width)-1);
-            Result[2] = Result[2] / ((bit.Height * bit.Width)-1);
-            return Result;
-        }
+				}
+			}
+			Result[0] = Result[0] / ((bit.Height * bit.Width) - 1);
+			Result[1] = Result[1] / ((bit.Height * bit.Width) - 1);
+			Result[2] = Result[2] / ((bit.Height * bit.Width) - 1);
+			return Result;
+		}
 
-        //возвращает  double Гамм по интевсивности в чб
-        public double Disp_p(Bitmap bit,bool grey)
+		/// <summary>
+		/// возвращает  double Гамм по интевсивности в чб
+		/// </summary>
+		/// <param name="bit"></param>
+		/// <param name="grey"></param>
+		/// <returns></returns>
+		public double Disp_p(Bitmap bit,bool grey)
         {
             double Result = 0;
             double p_av = P_Average(bit,true);
@@ -300,8 +344,14 @@ namespace Splain1_1
                 return a;
         }
 
-        //Среднее Е по всем компонентам цвета
-        public double[] E_average(Bitmap bit_start, Bitmap bit_after)
+
+		/// <summary>
+		/// Среднее Е по всем компонентам цвета
+		/// </summary>
+		/// <param name="bit_start"></param>
+		/// <param name="bit_after"></param>
+		/// <returns></returns>
+		public double[] E_average(Bitmap bit_start, Bitmap bit_after)
         {
             double[] result = new double[3];
 
@@ -330,8 +380,14 @@ namespace Splain1_1
                     return result;
         }
 
-        //Среднее Е по чб
-        public double E_average(Bitmap bit_start, Bitmap bit_after, bool grey)
+		/// <summary>
+		/// Среднее Е по чб
+		/// </summary>
+		/// <param name="bit_start"></param>
+		/// <param name="bit_after"></param>
+		/// <param name="grey"></param>
+		/// <returns></returns>
+		public double E_average(Bitmap bit_start, Bitmap bit_after, bool grey)
         {
             double result =0;
 

@@ -1,4 +1,4 @@
-﻿namespace CommonModel.Classes
+﻿namespace CommonModel.TwoDimSplines
 {
 	public struct Pixel
 	{

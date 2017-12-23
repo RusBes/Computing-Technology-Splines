@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-
-namespace CommonModel.Classes
+﻿namespace CommonModel.TwoDimSplines
 {
 	public class ComposedMask : IMaskFilter
 	{
@@ -23,9 +20,9 @@ namespace CommonModel.Classes
 
 		public ComposedMask() { }
 
-		public virtual ImageMatrix Accept(IMaskFilterWorker visitor, ImageMatrix matrix)
+		public virtual ImageMatrix Accept(IFilterVisitor<ImageMatrix> visitor)
 		{
-			return visitor.Mult(this, matrix);
+			return visitor.Visit(this);
 		}
 	}
 }

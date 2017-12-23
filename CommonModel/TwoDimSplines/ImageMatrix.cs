@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using CommonModel.Miscellaneous;
 
-namespace CommonModel.Classes
+namespace CommonModel.TwoDimSplines
 {
 	public class ImageMatrix
 	{
@@ -31,7 +32,7 @@ namespace CommonModel.Classes
 			{
 				for (int j = 0; j < Height; j++)
 				{
-					_pixels[i][j] = new Pixel(pixels[0, i, j], pixels[1, i, j], pixels[2, i, j]);
+					_pixels[j][i] = new Pixel(pixels[0, i, j], pixels[1, i, j], pixels[2, i, j]);
 				}
 			}
 		}
@@ -41,7 +42,7 @@ namespace CommonModel.Classes
 			{
 				for (int j = 0; j < Height; j++)
 				{
-					_pixels[i][j] = new Pixel(pixels[0, i, j], pixels[1, i, j], pixels[2, i, j]);
+					_pixels[j][i] = new Pixel(pixels[0, i, j], pixels[1, i, j], pixels[2, i, j]);
 				}
 			}
 		}
@@ -91,7 +92,7 @@ namespace CommonModel.Classes
 
 		public ImageMatrix ApplyFilter(IMaskFilter mask)
 		{
-			return mask.Accept(new ImageWorker(), this);
+			return mask.Accept(new ImageVisitor(this));
 		}
 
 		public Bitmap ToBitmap(Func<Pixel[][], byte[,,]> scaleFunc = null)

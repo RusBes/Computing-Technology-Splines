@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Linq;
 
-namespace CommonModel.Classes
+namespace CommonModel.TwoDimSplines
 {
 	public class ImageMask : IMaskFilter
 	{
@@ -33,9 +31,9 @@ namespace CommonModel.Classes
 			Matrix = mask;
 		}
 
-		public ImageMatrix Accept(IMaskFilterWorker visitor, ImageMatrix matrix)
+		public ImageMatrix Accept(IFilterVisitor<ImageMatrix> visitor)
 		{
-			return visitor.Mult(this, matrix);
+			return visitor.Visit(this);
 		}
 	}
 }

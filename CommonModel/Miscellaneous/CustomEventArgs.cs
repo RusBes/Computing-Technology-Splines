@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CommonModel
+namespace CommonModel.Miscellaneous
 {
 	public class SettingChangedEventArgs : EventArgs
 	{

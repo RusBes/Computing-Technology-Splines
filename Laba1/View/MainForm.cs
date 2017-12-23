@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using CommonModel;
+using CommonModel.Miscellaneous;
 
 namespace Laba1.View
 {

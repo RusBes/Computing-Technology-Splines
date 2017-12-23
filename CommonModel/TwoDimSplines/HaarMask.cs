@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommonModel.Classes;
-
-namespace CommonModel
+﻿namespace CommonModel.TwoDimSplines
 {
 	public class HaarMask : ComposedMask
 	{
-		public override ImageMatrix Accept(IMaskFilterWorker visitor, ImageMatrix matrix)
+		public override ImageMatrix Accept(IFilterVisitor<ImageMatrix> visitor)
 		{
-			return visitor.Mult(this, matrix);
+			return visitor.Visit(this);
 		}
 	}
 }

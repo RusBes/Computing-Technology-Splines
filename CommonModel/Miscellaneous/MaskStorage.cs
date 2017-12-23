@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommonModel.OneDimSplines;
+using CommonModel.TwoDimSplines;
 
-namespace CommonModel.Classes
+namespace CommonModel.Miscellaneous
 {
 	static class FilterStorage
 	{

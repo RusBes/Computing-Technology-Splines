@@ -2,17 +2,24 @@
 using System.Drawing;
 using System.Linq;
 
-namespace CommonModel.Classes
+namespace CommonModel.TwoDimSplines
 {
-	public interface IMaskFilterWorker
+	public interface IFilterVisitor<T>
 	{
-		ImageMatrix Mult(ImageMask mask, ImageMatrix matrix);
-		ImageMatrix Mult(ComposedMask mask, ImageMatrix matrix);
-		ImageMatrix Mult(HaarMask mask, ImageMatrix matrix);
+		T Visit(ImageMask mask);
+		T Visit(ComposedMask mask);
+		T Visit(HaarMask mask);
 	}
 
-	class ImageWorker : IMaskFilterWorker
+	class ImageVisitor : IFilterVisitor<ImageMatrix>
 	{
+		private ImageMatrix _image;
+
+		public ImageVisitor(ImageMatrix image)
+		{
+			_image = image;
+		}
+
 		private static byte[,,] _scalePixels(Pixel[][] pixels)
 		{
 			var res = new byte[3, pixels.Length, pixels[0].Length];
@@ -140,19 +147,19 @@ namespace CommonModel.Classes
 			return image.ToBitmap(_convertImplicitPixelsToByte);
 		}
 
-		public ImageMatrix Mult(ImageMask mask, ImageMatrix matrix)
+		public ImageMatrix Visit(ImageMask mask)
 		{
-			return MultiplyImageToMask(matrix, mask);
+			return MultiplyImageToMask(_image, mask);
 		}
 
-		public ImageMatrix Mult(ComposedMask mask, ImageMatrix matrix)
+		public ImageMatrix Visit(ComposedMask mask)
 		{
-			return MultiplyImageToMask(matrix, mask);
+			return MultiplyImageToMask(_image, mask);
 		}
 
-		public ImageMatrix Mult(HaarMask mask, ImageMatrix matrix)
+		public ImageMatrix Visit(HaarMask mask)
 		{
-			return MultiplyImageToMask(matrix, mask);
+			return MultiplyImageToMask(_image, mask);
 		}
 
 		public ImageMatrix MultiplyImageToMask(ImageMatrix p, ImageMask mask)

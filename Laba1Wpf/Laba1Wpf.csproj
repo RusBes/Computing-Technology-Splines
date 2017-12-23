@@ -101,10 +101,6 @@
     <Folder Include="ViewModel\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CommonModel\CommonModel.csproj">
-      <Project>{2bd736c1-9ea4-437a-bf12-94ec31430c20}</Project>
-      <Name>CommonModel</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Laba1\Laba1.csproj">
       <Project>{361FA0E3-CC83-4F4A-BC82-5E14DFA78B8A}</Project>
       <Name>Laba1</Name>

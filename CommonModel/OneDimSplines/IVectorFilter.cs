@@ -1,19 +1,20 @@
-﻿using System.Collections.Generic;
-using CommonModel.Classes;
+﻿using System;
+using System.Collections.Generic;
+using CommonModel.TwoDimSplines;
 
 namespace CommonModel.OneDimSplines
 {
 
-	public interface IVectorFilter
-	{
-		List<double> AcceptFilter(IVectorFilterWorker visitor, List<double> data);
-	}
+	//public interface IVectorFilter
+	//{
+	//	List<double> AcceptFilter(IVectorFilterWorker visitor, List<double> data);
+	//}
 
 	internal class Vector : List<double>, IVectorFilter
 	{
-		public List<double> AcceptFilter(IVectorFilterWorker visitor, List<double> data)
+		public List<double> Accept(IFilterVisitor<List<double>> filter)
 		{
-			return visitor.ApplyFilter(this, data);
+			throw new NotImplementedException();
 		}
 	}
 }
