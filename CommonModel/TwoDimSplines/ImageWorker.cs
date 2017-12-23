@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CommonModel.TwoDimSplines
 {
-	public interface IFilterVisitor<T>
+	public interface IFilterVisitor<out T>
 	{
 		T Visit(ImageMask mask);
 		T Visit(ComposedMask mask);
@@ -13,140 +13,13 @@ namespace CommonModel.TwoDimSplines
 
 	class ImageVisitor : IFilterVisitor<ImageMatrix>
 	{
-		private ImageMatrix _image;
+		private readonly ImageMatrix _image;
 
 		public ImageVisitor(ImageMatrix image)
 		{
 			_image = image;
 		}
-
-		private static byte[,,] _scalePixels(Pixel[][] pixels)
-		{
-			var res = new byte[3, pixels.Length, pixels[0].Length];
-
-			var maxR = pixels.Max(row => row.Max(p => p.R));
-			var maxG = pixels.Max(row => row.Max(p => p.G));
-			var maxB = pixels.Max(row => row.Max(p => p.B));
-
-			var minR = pixels.Min(row => row.Min(p => p.R));
-			var minG = pixels.Min(row => row.Min(p => p.G));
-			var minB = pixels.Min(row => row.Min(p => p.B));
-
-			//minR = minG = minB = Math.Min(Math.Min(minR, minG), minB);
-			//maxR = maxG = maxB = Math.Max(Math.Max(maxR, maxG), maxB);
-
-
-			//var maxR = pixels.Max(row => row.Max(p => Math.Abs(p.R)));
-			//var maxG = pixels.Max(row => row.Max(p => Math.Abs(p.G)));
-			//var maxB = pixels.Max(row => row.Max(p => Math.Abs(p.B)));
-
-			//var minR = pixels.Min(row => row.Min(p => Math.Abs(p.R)));
-			//var minG = pixels.Min(row => row.Min(p => Math.Abs(p.G)));
-			//var minB = pixels.Min(row => row.Min(p => Math.Abs(p.B)));
-
-			//minR = minG = minB = Math.Min(Math.Min(minR, minG), minB);
-			//maxR = maxG = maxB = Math.Max(Math.Max(maxR, maxG), maxB);
-
-			for (int i = 0; i < pixels.Length; i++)
-			{
-				for (int j = 0; j < pixels[0].Length; j++)
-				{
-					//res[0, i, j] = (byte)pixels[i][j].R < 127 ? (byte)0 : (byte)255;
-					//res[1, i, j] = (byte)pixels[i][j].G < 127 ? (byte)0 : (byte)255;
-					//res[2, i, j] = (byte)pixels[i][j].B < 127 ? (byte)0 : (byte)255;
-
-					res[0, i, j] = (byte)((double)(pixels[i][j].R - minR) * 255 / (maxR - minR));
-					res[1, i, j] = (byte)((double)(pixels[i][j].G - minG) * 255 / (maxG - minG));
-					res[2, i, j] = (byte)((double)(pixels[i][j].B - minB) * 255 / (maxB - minB));
-
-					//res[0, i, j] = (byte)(pixels[i][j].R < 0 ? 0 : pixels[i][j].R > 255 ? 255 : pixels[i][j].R);
-					//res[1, i, j] = (byte)(pixels[i][j].G < 0 ? 0 : pixels[i][j].G > 255 ? 255 : pixels[i][j].G);
-					//res[2, i, j] = (byte)(pixels[i][j].B < 0 ? 0 : pixels[i][j].B > 255 ? 255 : pixels[i][j].B);
-				}
-			}
-
-			return res;
-		}
-
-		private static byte[,,] _scalePixelsWidthAbs(Pixel[][] pixels)
-		{
-			var res = new byte[3, pixels.Length, pixels[0].Length];
-
-			var maxR = pixels.Max(row => row.Max(p => Math.Abs(p.R)));
-			var maxG = pixels.Max(row => row.Max(p => Math.Abs(p.G)));
-			var maxB = pixels.Max(row => row.Max(p => Math.Abs(p.B)));
-
-			var minR = pixels.Min(row => row.Min(p => Math.Abs(p.R)));
-			var minG = pixels.Min(row => row.Min(p => Math.Abs(p.G)));
-			var minB = pixels.Min(row => row.Min(p => Math.Abs(p.B)));
-
-			//minR = minG = minB = Math.Min(Math.Min(minR, minG), minB);
-			//maxR = maxG = maxB = Math.Max(Math.Max(maxR, maxG), maxB);
-
-			for (int i = 0; i < pixels.Length; i++)
-			{
-				for (int j = 0; j < pixels[0].Length; j++)
-				{
-					//res[0, i, j] = (byte)pixels[i][j].R < 127 ? (byte)0 : (byte)255;
-					//res[1, i, j] = (byte)pixels[i][j].G < 127 ? (byte)0 : (byte)255;
-					//res[2, i, j] = (byte)pixels[i][j].B < 127 ? (byte)0 : (byte)255;
-
-					res[0, i, j] = (byte)((double)(pixels[i][j].R - minR) * 255 / (maxR - minR));
-					res[1, i, j] = (byte)((double)(pixels[i][j].G - minG) * 255 / (maxG - minG));
-					res[2, i, j] = (byte)((double)(pixels[i][j].B - minB) * 255 / (maxB - minB));
-
-					//res[0, i, j] = (byte)(pixels[i][j].R < 0 ? 0 : pixels[i][j].R > 255 ? 255 : pixels[i][j].R);
-					//res[1, i, j] = (byte)(pixels[i][j].G < 0 ? 0 : pixels[i][j].G > 255 ? 255 : pixels[i][j].G);
-					//res[2, i, j] = (byte)(pixels[i][j].B < 0 ? 0 : pixels[i][j].B > 255 ? 255 : pixels[i][j].B);
-				}
-			}
-
-			return res;
-		}
-
-		private static byte[,,] _cutPixels(Pixel[][] pixels)
-		{
-			var res = new byte[3, pixels.Length, pixels[0].Length];
-
-			for (int i = 0; i < pixels.Length; i++)
-			{
-				for (int j = 0; j < pixels[0].Length; j++)
-				{
-					//res[0, i, j] = (byte)pixels[i][j].R < 127 ? (byte)0 : (byte)255;
-					//res[1, i, j] = (byte)pixels[i][j].G < 127 ? (byte)0 : (byte)255;
-					//res[2, i, j] = (byte)pixels[i][j].B < 127 ? (byte)0 : (byte)255;
-
-					res[0, i, j] = (byte)(pixels[i][j].R < 0 ? 0 : pixels[i][j].R > 255 ? 255 : pixels[i][j].R);
-					res[1, i, j] = (byte)(pixels[i][j].G < 0 ? 0 : pixels[i][j].G > 255 ? 255 : pixels[i][j].G);
-					res[2, i, j] = (byte)(pixels[i][j].B < 0 ? 0 : pixels[i][j].B > 255 ? 255 : pixels[i][j].B);
-				}
-			}
-
-			return res;
-		}
-
-		private static byte[,,] _convertImplicitPixelsToByte(Pixel[][] pixels)
-		{
-			var res = new byte[3, pixels.Length, pixels[0].Length];
-
-			for (int i = 0; i < pixels.Length; i++)
-			{
-				for (int j = 0; j < pixels[0].Length; j++)
-				{
-					res[0, i, j] = (byte)(pixels[i][j].R);
-					res[1, i, j] = (byte)(pixels[i][j].G);
-					res[2, i, j] = (byte)(pixels[i][j].B);
-				}
-			}
-
-			return res;
-		}
-
-		public static Bitmap ImageToBitmap(ImageMatrix image)
-		{
-			return image.ToBitmap(_convertImplicitPixelsToByte);
-		}
-
+		
 		public ImageMatrix Visit(ImageMask mask)
 		{
 			return MultiplyImageToMask(_image, mask);
@@ -162,7 +35,7 @@ namespace CommonModel.TwoDimSplines
 			return MultiplyImageToMask(_image, mask);
 		}
 
-		public ImageMatrix MultiplyImageToMask(ImageMatrix p, ImageMask mask)
+		private ImageMatrix MultiplyImageToMask(ImageMatrix p, ImageMask mask)
 		{
 			//var indent = mask.Length / 2;
 			var res = new ImageMatrix(p.Width, p.Height);
@@ -184,7 +57,7 @@ namespace CommonModel.TwoDimSplines
 			return res;
 		}
 
-		public ImageMatrix MultiplyImageToMask(ImageMatrix p, ComposedMask masks)
+		private ImageMatrix MultiplyImageToMask(ImageMatrix p, ComposedMask masks)
 		{
 			var res = new ImageMatrix(p.Width * 2, p.Height * 2);
 			try
@@ -208,17 +81,17 @@ namespace CommonModel.TwoDimSplines
 			return res;
 		}
 
-		public ImageMatrix MultiplyImageToMask(ImageMatrix p, HaarMask masks)
+		private ImageMatrix MultiplyImageToMask(ImageMatrix p, HaarMask masks)
 		{
 			var res = new ImageMatrix(p.Width, p.Height);
 			var wid = p.Width / 2;
 			var height = p.Height / 2;
-
+			int i, j;
 			try
 			{
-				for (int i = 0; i < p.Width / 2; i++)
+				for (i = 0; i < p.Width / 2; i++)
 				{
-					for (int j = 0; j < p.Height / 2; j++)
+					for (j = 0; j < p.Height / 2; j++)
 					{
 						res[i, j] = ApplyFilterToPixel(2 * i, 2 * j, p, masks.A);
 						res[i + wid, j] = ApplyFilterToPixel(2 * i + 1, 2 * j, p, masks.B);
@@ -234,11 +107,12 @@ namespace CommonModel.TwoDimSplines
 
 			return res;
 		}
+
 		private Pixel ApplyFilterToPixel(int i, int j, ImageMatrix p, ImageMask mask)
 		{
 			var indent = mask.Length / 2;
 			// for even dimension mask rightIndent should be smaller by 1
-			var rightIndent = indent % 2 == 0 ? indent - 1 : indent;
+			var rightIndent = mask.Length % 2 == 0 ? indent - 1 : indent;
 			double r = 0, g = 0, b = 0;
 			for (int ii = i - indent; ii <= i + rightIndent; ii++)
 			{

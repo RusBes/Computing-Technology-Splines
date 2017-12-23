@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CommonModel.Miscellaneous;
 using CommonModel.TwoDimSplines;
 
 namespace CommonModel.OneDimSplines

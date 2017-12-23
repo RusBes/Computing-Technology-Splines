@@ -1,4 +1,6 @@
-﻿namespace CommonModel.TwoDimSplines
+﻿using CommonModel.Miscellaneous;
+
+namespace CommonModel.TwoDimSplines
 {
 	public class ComposedMask : IMaskFilter
 	{

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using CommonModel.Miscellaneous;
 using CommonModel.OneDimSplines;
 using CommonModel.TwoDimSplines;
@@ -10,7 +11,7 @@ using CommonModel.TwoDimSplines;
 
 namespace CommonModel
 {
-    public partial class Model
+    public class Model
     {
         private readonly Random _rnd = new Random();
         public delegate double CalcValueInPoint(double d, int i);
@@ -22,10 +23,10 @@ namespace CommonModel
 
 	    public int ScopeRadius { get; set; }
 		
-		private int pointsInInterval => (int)Settings["PointsInInterval"].Value;
+		private int _pointsInInterval => (int)Settings["PointsInInterval"].Value;
         private int n => (int)Settings["PointCount"].Value;
         private double intervalLength => (double)Settings["IntervalLength"].Value;
-        private double[] X { get; set; }
+	    private double[] X;
 
         private double[] GetNewX(int pointsInInterval)
         {
@@ -39,7 +40,7 @@ namespace CommonModel
 
         public void RefreshX()
         {
-            X = GetNewX(pointsInInterval);
+            X = GetNewX(_pointsInInterval);
         }
 
         public Dictionary<string, Setting> DefaultSettings => new Dictionary<string, Setting>()
@@ -59,7 +60,7 @@ namespace CommonModel
         {
             Settings = DefaultSettings;
             P = GetP(n);
-            X = GetNewX(pointsInInterval);
+            X = GetNewX(_pointsInInterval);
 
             ScopeRadius = 20;
 		}
@@ -77,7 +78,7 @@ namespace CommonModel
 	    {
 		    var matrix = new ImageMatrix(image);
 		    var filter = FilterStorage.GetMask(filterName);
-		    return matrix.ApplyFilter(filter).ToBitmap();
+		    return matrix.ApplyFilter(filter).ToBitmap(ScaleImageHelper._cutPixels);
 	    }
 
 		public Spline CreateSpline(string name)
@@ -181,7 +182,6 @@ namespace CommonModel
             return res;
         }
         
-
         private void _addAdditionalPointsWithCycle(List<PointD> list, Interval pointsCount)
         {
             int n = list.Count - 1;
@@ -200,6 +200,116 @@ namespace CommonModel
         public Interval GetAdditionalPointsCount(string spline)
 		{
             return new Spline(spline, null).GetAdditionalPointsNumbers();
+		}
+
+	    private class ScaleImageHelper
+	    {
+			public static byte[,,] _scalePixels(Pixel[][] pixels)
+			{
+				var res = new byte[3, pixels[0].Length, pixels.Length];
+
+				var maxR = pixels.Max(row => row.Max(p => p.R));
+				var maxG = pixels.Max(row => row.Max(p => p.G));
+				var maxB = pixels.Max(row => row.Max(p => p.B));
+
+				var minR = pixels.Min(row => row.Min(p => p.R));
+				var minG = pixels.Min(row => row.Min(p => p.G));
+				var minB = pixels.Min(row => row.Min(p => p.B));
+
+				//minR = minG = minB = Math.Min(Math.Min(minR, minG), minB);
+				//maxR = maxG = maxB = Math.Max(Math.Max(maxR, maxG), maxB);
+
+
+				//var maxR = pixels.Max(row => row.Max(p => Math.Abs(p.R)));
+				//var maxG = pixels.Max(row => row.Max(p => Math.Abs(p.G)));
+				//var maxB = pixels.Max(row => row.Max(p => Math.Abs(p.B)));
+
+				//var minR = pixels.Min(row => row.Min(p => Math.Abs(p.R)));
+				//var minG = pixels.Min(row => row.Min(p => Math.Abs(p.G)));
+				//var minB = pixels.Min(row => row.Min(p => Math.Abs(p.B)));
+
+				//minR = minG = minB = Math.Min(Math.Min(minR, minG), minB);
+				//maxR = maxG = maxB = Math.Max(Math.Max(maxR, maxG), maxB);
+
+				for (int i = 0; i < pixels.Length; i++)
+				{
+					for (int j = 0; j < pixels[0].Length; j++)
+					{
+						//res[0, i, j] = (byte)pixels[i][j].R < 127 ? (byte)0 : (byte)255;
+						//res[1, i, j] = (byte)pixels[i][j].G < 127 ? (byte)0 : (byte)255;
+						//res[2, i, j] = (byte)pixels[i][j].B < 127 ? (byte)0 : (byte)255;
+
+						res[0, j, i] = (byte)((double)(pixels[i][j].R - minR) * 255 / (maxR - minR));
+						res[1, j, i] = (byte)((double)(pixels[i][j].G - minG) * 255 / (maxG - minG));
+						res[2, j, i] = (byte)((double)(pixels[i][j].B - minB) * 255 / (maxB - minB));
+
+						//res[0, i, j] = (byte)(pixels[i][j].R < 0 ? 0 : pixels[i][j].R > 255 ? 255 : pixels[i][j].R);
+						//res[1, i, j] = (byte)(pixels[i][j].G < 0 ? 0 : pixels[i][j].G > 255 ? 255 : pixels[i][j].G);
+						//res[2, i, j] = (byte)(pixels[i][j].B < 0 ? 0 : pixels[i][j].B > 255 ? 255 : pixels[i][j].B);
+					}
+				}
+
+				return res;
+			}
+
+		    public static byte[,,] _scalePixelsWidthAbs(Pixel[][] pixels)
+			{
+				var res = new byte[3, pixels[0].Length, pixels.Length];
+
+				var maxR = pixels.Max(row => row.Max(p => Math.Abs(p.R)));
+				var maxG = pixels.Max(row => row.Max(p => Math.Abs(p.G)));
+				var maxB = pixels.Max(row => row.Max(p => Math.Abs(p.B)));
+
+				var minR = pixels.Min(row => row.Min(p => Math.Abs(p.R)));
+				var minG = pixels.Min(row => row.Min(p => Math.Abs(p.G)));
+				var minB = pixels.Min(row => row.Min(p => Math.Abs(p.B)));
+
+				for (int i = 0; i < pixels.Length; i++)
+				{
+					for (int j = 0; j < pixels[0].Length; j++)
+					{
+						res[0, j, i] = (byte)((double)(pixels[i][j].R - minR) * 255 / (maxR - minR));
+						res[1, j, i] = (byte)((double)(pixels[i][j].G - minG) * 255 / (maxG - minG));
+						res[2, j, i] = (byte)((double)(pixels[i][j].B - minB) * 255 / (maxB - minB));
+					}
+				}
+
+				return res;
+			}
+
+		    public static byte[,,] _cutPixels(Pixel[][] pixels)
+			{
+				var res = new byte[3, pixels[0].Length, pixels.Length];
+
+				for (int i = 0; i < pixels.Length; i++)
+				{
+					for (int j = 0; j < pixels[0].Length; j++)
+					{
+						res[0, j, i] = (byte)(pixels[i][j].R < 0 ? 0 : pixels[i][j].R > 255 ? 255 : pixels[i][j].R);
+						res[1, j, i] = (byte)(pixels[i][j].G < 0 ? 0 : pixels[i][j].G > 255 ? 255 : pixels[i][j].G);
+						res[2, j, i] = (byte)(pixels[i][j].B < 0 ? 0 : pixels[i][j].B > 255 ? 255 : pixels[i][j].B);
+					}
+				}
+
+				return res;
+			}
+
+		    public static byte[,,] _convertImplicitPixelsToByte(Pixel[][] pixels)
+			{
+				var res = new byte[3, pixels[0].Length, pixels.Length];
+
+				for (int i = 0; i < pixels.Length; i++)
+				{
+					for (int j = 0; j < pixels[0].Length; j++)
+					{
+						res[0, j, i] = (byte)(pixels[i][j].R);
+						res[1, j, i] = (byte)(pixels[i][j].G);
+						res[2, j, i] = (byte)(pixels[i][j].B);
+					}
+				}
+
+				return res;
+			}
 		}
     }
 }

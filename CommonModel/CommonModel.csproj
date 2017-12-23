@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Miscellaneous\CustomEventArgs.cs" />
-    <Compile Include="TwoDimSplines\IMaskFilter.cs" />
+    <Compile Include="Miscellaneous\FilterInterfaces.cs" />
     <Compile Include="Miscellaneous\MaskStorage.cs" />
     <Compile Include="Miscellaneous\PointD.cs" />
     <Compile Include="Miscellaneous\Setting.cs" />
@@ -57,7 +57,7 @@
     <Compile Include="TwoDimSplines\HaarMask.cs" />
     <Compile Include="TwoDimSplines\ImageMatrix.cs" />
     <Compile Include="TwoDimSplines\ImageWorker.cs" />
-    <Compile Include="TwoDimSplines\Mask.cs" />
+    <Compile Include="TwoDimSplines\ImageMask.cs" />
     <Compile Include="TwoDimSplines\Pixel.cs" />
     <Compile Include="TwoDimSplines\Statistic.cs" />
   </ItemGroup>

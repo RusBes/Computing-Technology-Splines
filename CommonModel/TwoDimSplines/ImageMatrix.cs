@@ -28,9 +28,9 @@ namespace CommonModel.TwoDimSplines
 		public ImageMatrix(Bitmap bmp) : this(bmp.Width, bmp.Height)
 		{
 			var pixels = BitmapToByteRgbQ(bmp);
-			for (int i = 0; i < Width; i++)
+			for (int i = 0; i < Height; i++)
 			{
-				for (int j = 0; j < Height; j++)
+				for (int j = 0; j < Width; j++)
 				{
 					_pixels[j][i] = new Pixel(pixels[0, i, j], pixels[1, i, j], pixels[2, i, j]);
 				}
@@ -123,14 +123,14 @@ namespace CommonModel.TwoDimSplines
 
 		private byte[,,] _pixelsToBytes(Pixel[][] pixels)
 		{
-			var res = new byte[3, Width, Height];
+			var res = new byte[3, Height, Width];
 			for (int i = 0; i < Width; i++)
 			{
 				for (int j = 0; j < Height; j++)
 				{
-					res[0, i, j] = (byte)pixels[i][j].R;
-					res[1, i, j] = (byte)pixels[i][j].G;
-					res[2, i, j] = (byte)pixels[i][j].B;
+					res[0, j, i] = (byte)pixels[i][j].R;
+					res[1, j, i] = (byte)pixels[i][j].G;
+					res[2, j, i] = (byte)pixels[i][j].B;
 				}
 			}
 			return res;

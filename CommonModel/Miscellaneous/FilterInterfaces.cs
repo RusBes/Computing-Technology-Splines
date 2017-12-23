@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using CommonModel.TwoDimSplines;
 
-namespace CommonModel.TwoDimSplines
+namespace CommonModel.Miscellaneous
 {
 	public interface IFilterAcceptor<T>
 	{
